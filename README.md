@@ -1,4 +1,4 @@
-﻿# qtppy Python 自动化测试平台
+﻿# qtppy 自动化测试平台
 
 [![Build Status](https://travis-ci.org/HttpTesting/pyhttp.svg?branch=master)](https://travis-ci.org/HttpTesting/pyhttp)
 ![PyPI](https://img.shields.io/pypi/v/Httptesting)

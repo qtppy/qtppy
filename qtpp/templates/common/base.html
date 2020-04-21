@@ -1,0 +1,27 @@
+<!doctype html>
+<title>{% block title %}{% endblock %} - qtppy</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<nav>
+  <h1>qtppy</h1>
+  <ul>
+    {% if g.user %}
+      <li><span>{{ g.user['username'] }}</span>
+      <li><a href="{{ url_for('auth.logout') }}">Log Out</a>
+    {% else %}
+      <li><a href="{{ url_for('auth.register') }}">Register</a>
+      <li><a href="{{ url_for('auth.login') }}">Log In</a>
+    {% endif %}
+  </ul>
+</nav>
+<section class="content">
+  <header>
+    {% block header %}{% endblock %}
+  </header>
+
+  <!--模板会循环显示 get_flashed_messages() 返回 的每个消息。
+  在视图中使用 flash() 来处理出错信息，在模板中就可以这样 显示出出来。-->
+  {% for message in get_flashed_messages() %}
+    <div class="flash">{{ message }}</div>
+  {% endfor %}
+  {% block content %}{% endblock %}
+</section>
