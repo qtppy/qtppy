@@ -2,25 +2,22 @@ from flask import (
     Blueprint, flash, g, redirect, render_template, request, url_for
 )
 from werkzeug.exceptions import abort
+from qtpp.views.auth import login_required
 
-from qtpp.auth import login_required
-from qtpp.db import get_db
-
+from qtpp import db
+from qtpp.libs.framework.operate_db import OperationDB
+from qtpp.models.post import Post
 '''
 用例蓝图与验证蓝图所使用的技术一样。
 用例页面应当列出所有的case，允许已登录 用户创建用例，并允许创建者修改和删除用例。
 '''
 bp = Blueprint('case', __name__)
-
+odb = OperationDB()
 
 @bp.route('/')
 def index():
-    db = get_db()
-    posts = db.execute(
-        'SELECT p.id, title, body, created, author_id, username'
-        ' FROM post p JOIN user u ON p.author_id = u.id'
-        ' ORDER BY created DESC'
-    ).fetchall()
+    posts = odb.query_all(Post)
+
     return render_template('case/index.html', posts=posts)
 
 
@@ -44,16 +41,11 @@ def create():
         if error is not None:
             flash(error)
         else:
-            db = get_db()
-            db.execute(
-                'INSERT INTO post (title, body, author_id)'
-                ' VALUES (?, ?, ?)',
-                (title, body, g.user['id'])
-            )
-            db.commit()
-            return redirect(url_for('blog.index'))
+            odb.add(Post(title, body, g.user.id))
 
-    return render_template('blog/create.html')
+            return redirect(url_for('case.index'))
+
+    return render_template('case/create.html')
 
 
 '''

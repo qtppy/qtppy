@@ -5,7 +5,11 @@ from flask import (
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from qtpp.db import get_db
+
+from qtpp import db
+from qtpp.libs.framework.operate_db import OperationDB
+
+from qtpp.models.user import User
 
 '''
 这里创建了一个名称为 'auth' 的 Blueprint 。和应用对象一样， 
@@ -13,6 +17,7 @@ from qtpp.db import get_db
 url_prefix 会添加到所有与该蓝图关联的 URL 前面。
 '''
 bp = Blueprint('auth', __name__, url_prefix='/auth')
+odb = OperationDB()
 
 ''' 
 认证蓝图将包括注册新用户、登录和注销视图。
@@ -27,7 +32,7 @@ def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        db = get_db()
+
         error = None
 
         # 带有 ? 占位符 的 SQL 查询语句。占位符可以代替后面的元组参数中相应的值。
@@ -36,22 +41,17 @@ def register():
         # 后面还用到 fetchall() ，它返回包括所有结果的列表。
         # 使用 generate_password_hash() 生成安全的哈希值并储存 到数据库中。
         #  url_for() 根据登录视图的名称生成相应的 URL
-
+        
         if not username:
             error = 'Username is required.'
         elif not password:
             error = 'Password is required.'
-        elif db.execute(
-            'SELECT id FROM user WHERE username = ?', (username,)
-        ).fetchone() is not None:
+        elif odb.query_per(User, 'username', username) is not None:
             error = 'User {} is already registered.'.format(username)
 
         if error is None:
-            db.execute(
-                'INSERT INTO user (username, password) VALUES (?, ?)',
-                (username, generate_password_hash(password))
-            )
-            db.commit()
+            odb.add(User(username, password))
+
             return redirect(url_for('auth.login'))
 
         flash(error)  #flash() 用于储存在渲染模块时可以调用的信息。
@@ -64,11 +64,10 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        db = get_db()
+
         error = None
-        user = db.execute(
-            'SELECT * FROM user WHERE username = ?', (username,)
-        ).fetchone()
+
+        user = odb.query_per(User, 'username', username)
 
         # check_password_hash() 以相同的方式哈希提交的 密码并安全的比较哈希值。
         # 如果匹配成功，那么密码就是正确的。
@@ -79,12 +78,12 @@ def login():
 
         if user is None:
             error = 'Incorrect username.'
-        elif not check_password_hash(user['password'], password):
+        elif not check_password_hash(user.password, password):
             error = 'Incorrect password.'
 
         if error is None:
             session.clear()
-            session['user_id'] = user['id']
+            session['user_id'] = user.id
             return redirect(url_for('index'))
 
         flash(error)
@@ -105,9 +104,7 @@ def load_logged_in_user():
     if user_id is None:
         g.user = None
     else:
-        g.user = get_db().execute(
-            'SELECT * FROM user WHERE id = ?', (user_id,)
-        ).fetchone()
+        g.user = odb.query_per(User, 'id', user_id)
 
 
 '''
