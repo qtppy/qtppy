@@ -1,4 +1,4 @@
-﻿# qtppy 自动化测试平台
+﻿# qtppy自动化测试平台
 
 [![Build Status](https://travis-ci.org/HttpTesting/pyhttp.svg?branch=master)](https://travis-ci.org/HttpTesting/pyhttp)
 ![PyPI](https://img.shields.io/pypi/v/Httptesting)
@@ -6,7 +6,7 @@
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/HttpTesting)
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/HttpTesting)
 
-Quality testing platform-python 简称qtppy，是HTTP(S)协议接口测试框架，
+Quality testing platform-python 简称qtppy，是基于python语言开发的自动化测试平台
 
 
 ## 功能描述
