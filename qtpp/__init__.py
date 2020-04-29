@@ -1,52 +1,29 @@
 import os
 
 from flask import Flask
-import setting
-from flask_sqlalchemy import SQLAlchemy
-
-db = SQLAlchemy()
+from config import config_dict
+from qtpp.exts import db
 
 '''
 1、应用工厂
 2、QTPPY是一个python包   
 '''
-def create_app(test_config=None):
+def create_app(config_name='pro'):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
 
-    app.config.from_object(setting)
-    
-    # app.config.from_mapping(
-    #     SECRET_KEY='dev',
-    #     DATABASE=os.path.join(app.instance_path, 'qtppy.sqlite'),
-    # )
 
-    # if test_config is None:
-    #     # load the instance config, if it exists, when not testing
-    #     app.config.from_pyfile('config.py', silent=True)
-    # else:
-    #     # load the test config if passed in
-    #     app.config.from_mapping(test_config)
 
-    # # ensure the instance folder exists
-    # try:
-    #     os.makedirs(app.instance_path)
-    # except OSError:
-    #     pass
+    # 根据传入的环境名称获取配置
+    config = config_dict.get(config_name)
 
-    # a simple page that says hello
-    @app.route('/hello')
-    def hello():
-        return 'Hello, World!'
-
+    # 加载配置
+    app.config.from_object(config)
 
     '''
     db.init_app(app) # 将上述配置项初始化到flask-sqlachemy配置中并进行相关初始化
-    db.create_all() # 初始化数据库，若数据库中没有相应的表，则创建表结构
     '''
     db.init_app(app) 
-    db.create_all(app=app)
-
 
     # 导入注册蓝图
     from .views import auth
