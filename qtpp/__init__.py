@@ -17,7 +17,7 @@ def create_app(config_name='pro'):
     # 根据传入的环境名称获取配置
     config = config_dict.get(config_name)
 
-    # 加载配置
+    # 加载配置A
     app.config.from_object(config)
 
     '''

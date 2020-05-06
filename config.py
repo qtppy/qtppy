@@ -7,13 +7,18 @@ class BaseConfig:
     DEBUG = True
     SECRET_KEY='dev'
 
-    DB_URI = r"sqlite:///D:\test_project\project\qtppy\instance\qtppy.sqlite"
+    DIALCT = 'mysql'
+    DRIVER = "pymysql"
+    USERNAME = 'root'
+    PASSWORD = '123456'
+    HOST = '127.0.0.1'
+    PORT = '3306'
+    DBNAME = 'qtppdb'
+    SQLALCHEMY_DATABASE_URI = '{}+{}://{}:{}@{}:{}/{}?charset=utf8'.format(DIALCT,DRIVER,USERNAME,PASSWORD,HOST,PORT,DBNAME)
+    SQLALCHEMY_TRACK_MODIFICATIONS = True        #没有此配置会导致警告
 
-    SQLALCHEMY_DATABASE_URI = DB_URI
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ECHO = True
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
-
 
 # 开发环境配置
 class DevConfig(BaseConfig):

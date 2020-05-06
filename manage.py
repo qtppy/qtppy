@@ -1,7 +1,8 @@
 '''
+    API:https://flask-migrate.readthedocs.io/en/latest/
     # 对数据库的操作
     python manage.py db init
-    python manage.py db migrate
+    python manage.py db migrate -m "注释"
     python manage.pydb upgrade
 
     # 启动项目
