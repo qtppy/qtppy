@@ -30,3 +30,4 @@ class OperationDB:
         result = self.query_per(table_class, k, v)
         self.db.session.delete(result)
         self.db.session.commit()
+        return result

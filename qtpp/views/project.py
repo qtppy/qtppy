@@ -49,6 +49,38 @@ def create_project():
     return abort(404)
 
 
+@bp.route('/delete', methods=('GET', 'POST'))
+@login_required
+def delete_project():
+    '''
+    删除项目,级联测试集也会删除
+    '''
+    if request.method == 'POST':
+        error = None
+
+        if not g.user.uid:
+            error = 'is not required.'
+        
+        # 授权
+        if error is not None:
+            return jsonify(Const.NOT_LOGIN_DICT)
+        else:
+            p_id = request.form['p_id']
+            dt = odb.delete(Project, 'p_id', int(p_id))
+
+            Const.SUCCESS_DICT['errmsg'] = '删除成功'
+            Const.SUCCESS_DICT['res'] = {
+                'project':{
+                    'p_id': p_id,
+                    'p_name': dt.p_name
+                }
+            }
+            return jsonify(Const.SUCCESS_DICT)
+
+    return abort(404)
+
+
+
 @bp.route('/getall/<int:id>', methods=('GET', 'POST'))
 @login_required
 def get_project_or_suite_list(id):
