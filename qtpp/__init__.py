@@ -17,7 +17,7 @@ def create_app(config_name='pro'):
     # 根据传入的环境名称获取配置
     config = config_dict.get(config_name)
 
-    # 加载配置
+    # 加载配置A
     app.config.from_object(config)
 
     '''
@@ -35,5 +35,9 @@ def create_app(config_name='pro'):
     from .views import case
     app.register_blueprint(case.bp)
     app.add_url_rule('/', endpoint='index')
+
+    #导入项目蓝图
+    from .views import project
+    app.register_blueprint(project.bp)
 
     return app

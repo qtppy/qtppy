@@ -13,10 +13,11 @@ from qtpp import db
 class Post(db.Model):
     __tablename__ = 'post'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    author_id = db.Column(db.String(20), db.ForeignKey('user.id'), nullable=False)
     created = db.Column(db.Date, nullable=False)
     title = db.Column(db.String(20), nullable=False)
     body = db.Column(db.String(100), nullable=False)
+    author_id = db.Column(db.Integer, db.ForeignKey('user.uid'), nullable=False)
+    users = db.relationship('User', backref=db.backref('posts'))
 
     def __init__(self, title, content, author_id):
         self.title = title

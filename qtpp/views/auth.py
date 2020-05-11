@@ -41,6 +41,7 @@ def register():
         # 后面还用到 fetchall() ，它返回包括所有结果的列表。
         # 使用 generate_password_hash() 生成安全的哈希值并储存 到数据库中。
         #  url_for() 根据登录视图的名称生成相应的 URL
+
         
         if not username:
             error = 'Username is required.'
@@ -50,7 +51,7 @@ def register():
             error = 'User {} is already registered.'.format(username)
 
         if error is None:
-            odb.add(User(username, password))
+            odb.add(User(username, generate_password_hash(password)))
 
             return redirect(url_for('auth.login'))
 
@@ -83,7 +84,7 @@ def login():
 
         if error is None:
             session.clear()
-            session['user_id'] = user.id
+            session['user_id'] = user.uid
             return redirect(url_for('index'))
 
         flash(error)
@@ -104,7 +105,7 @@ def load_logged_in_user():
     if user_id is None:
         g.user = None
     else:
-        g.user = odb.query_per(User, 'id', user_id)
+        g.user = odb.query_per(User, 'uid', user_id)
 
 
 '''
