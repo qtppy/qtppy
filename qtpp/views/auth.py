@@ -84,7 +84,7 @@ def login():
 
         if error is None:
             session.clear()
-            session['user_id'] = user.id
+            session['user_id'] = user.uid
             return redirect(url_for('index'))
 
         flash(error)
@@ -105,7 +105,7 @@ def load_logged_in_user():
     if user_id is None:
         g.user = None
     else:
-        g.user = odb.query_per(User, 'id', user_id)
+        g.user = odb.query_per(User, 'uid', user_id)
 
 
 '''

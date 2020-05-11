@@ -16,7 +16,7 @@ class Post(db.Model):
     created = db.Column(db.Date, nullable=False)
     title = db.Column(db.String(20), nullable=False)
     body = db.Column(db.String(100), nullable=False)
-    author_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    author_id = db.Column(db.Integer, db.ForeignKey('user.uid'), nullable=False)
     users = db.relationship('User', backref=db.backref('posts'))
 
     def __init__(self, title, content, author_id):

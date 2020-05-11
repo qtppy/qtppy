@@ -11,7 +11,7 @@ from qtpp.models.post import Post
 用例蓝图与验证蓝图所使用的技术一样。
 用例页面应当列出所有的case，允许已登录 用户创建用例，并允许创建者修改和删除用例。
 '''
-bp = Blueprint('case', __name__)
+bp = Blueprint('case', __name__, url_prefix='/')
 odb = OperationDB()
 
 @bp.route('/')
@@ -41,7 +41,7 @@ def create():
         if error is not None:
             flash(error)
         else:
-            odb.add(Post(title, body, g.user.id))
+            odb.add(Post(title, body, g.user.uid))
 
             return redirect(url_for('case.index'))
 

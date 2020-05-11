@@ -36,4 +36,8 @@ def create_app(config_name='pro'):
     app.register_blueprint(case.bp)
     app.add_url_rule('/', endpoint='index')
 
+    #导入项目蓝图
+    from .views import project
+    app.register_blueprint(project.bp)
+
     return app
