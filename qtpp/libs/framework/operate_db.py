@@ -22,9 +22,12 @@ class OperationDB:
 
     def update(self, table_class, k, v, **kwargs):
         result = self.query_per(table_class, k, v)
-        for g, m in kwargs.items():
-            setattr(result, g, m)
+
+        for k, v in kwargs.items():
+            setattr(result, k, v)
         self.db.session.commit()
+        return result
+
 
     def delete(self, table_class, k, v):
         result = self.query_per(table_class, k, v)
