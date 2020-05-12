@@ -13,7 +13,6 @@ def create_app(config_name='pro'):
     app = Flask(__name__, instance_relative_config=True)
 
 
-
     # 根据传入的环境名称获取配置
     config = config_dict.get(config_name)
 
