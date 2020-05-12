@@ -16,7 +16,7 @@ odb = OperationDB()
 
 
 @bp.route('/create', methods=('GET', 'POST'))
-@login_required
+# @login_required
 def create_project():
     '''
     创建项目
