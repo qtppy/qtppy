@@ -1,6 +1,8 @@
 import pytest
 from qtpp import create_app
 
+import warnings
+warnings.filterwarnings("ignore")
 
 @pytest.fixture
 def app():

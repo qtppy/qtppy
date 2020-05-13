@@ -27,7 +27,7 @@ class DevConfig(BaseConfig):
 
 # 测试环境配置
 class TestConfig(BaseConfig):
-    pass
+    SQLALCHEMY_ECHO = False
 
 # 线上环境配置
 class ProConfig(BaseConfig):
