@@ -15,4 +15,10 @@ class Const:
         'errmsg': '成功.'
     }
 
+    ERROR_DICT = {
+        '0' : "OK",
+        '1001' : "",
+        '1002' : ""
+    }
+
     

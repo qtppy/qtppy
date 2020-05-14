@@ -12,9 +12,9 @@ def create_project(client, auth):
         json={"name": "我的第N个项目"}
     )
 
-    print('新建项目:{}'.format(res['res']))
+    print('\n/project/create :{}'.format(res.json['res']))
 
-    return res if "N" in res.json['res']['project_name'] else False
+    return res.json if "N" in res.json['res']['project_name'] else False
 
 
 
@@ -49,7 +49,7 @@ def test_create_project(client, auth):
 
         assert assert_result_bool
 
-    print('新创建项目ID:{}'.format(p_id_lst))
+    print('\n/project/create 新创建项目ID:{}'.format(p_id_lst))
 
 
 
@@ -77,11 +77,14 @@ def test_delete_project(client, auth):
             }
         }
     '''
+    # 创建项目
     res_project = create_project(client, auth)
-    
+
+    # 级联删除项目
     res = client.post(
         '/project/delete',
-        json=[res_project['res']['p_id']]
+        json={'p_id': [res_project['res']['p_id']]}
     )
 
-    assert res_project['res']['p_id'] in [pid_dict['p_id'] for pid_dict in res['res']['project']]
+    print('/project/delete : {}'.format(res.json))
+    assert res_project['res']['p_id'] in [pid_dict['p_id'] for pid_dict in res.json['res']['project']]
