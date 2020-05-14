@@ -29,7 +29,7 @@ def create_project():
         if not g.user.uid:
             error = 'this is not required.'
         
-        if error is not None:
+        if error is not None: 
             # flash(error)
             return jsonify(Const.NOT_LOGIN_DICT)
 

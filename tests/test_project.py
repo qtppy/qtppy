@@ -1,5 +1,13 @@
 '''
 coverage run -m pytest --capture=no
+
+or
+
+coverage run -m pytest -s
+
+----------------------------------------------------------
+-m参数加标记，可以执行测试用例加@pytest.mark.update标记的用例
+coverage run -m pytest -s -m update 
 '''
 import pytest
 
@@ -21,6 +29,7 @@ def create_project(client, auth):
 '''
 /project/create 创建项目
 '''
+@pytest.mark.create
 def test_create_project(client, auth):
     '''
     desc:创建项目测试用例
@@ -56,6 +65,7 @@ def test_create_project(client, auth):
 '''
 /project/delete 删除项目
 '''
+@pytest.mark.delete
 def test_delete_project(client, auth):
     '''
     删除项目测试函数
@@ -88,3 +98,47 @@ def test_delete_project(client, auth):
 
     print('/project/delete : {}'.format(res.json))
     assert res_project['res']['p_id'] in [pid_dict['p_id'] for pid_dict in res.json['res']['project']]
+
+
+'''
+/project/update根据项目ID更新项目信息
+'''
+@pytest.mark.update
+def test_update_project(client, auth):
+    '''
+    根据项目ID更新项目信息
+    return: json示例
+    '''
+    new_name = '我更新了项目名称'
+
+    # 创建项目
+    res_project = create_project(client, auth)
+
+    res = client.post(
+        '/project/update?p_id=%d&name=%s' % (res_project['res']['p_id'], new_name),
+    )
+    print('/project/update : {}'.format(res.json))
+
+    assert new_name == res.json['res']['project']['new_p_name']
+
+
+'''
+/project/getall/1 or 2获取所有项目或2项目下所有测试集
+'''
+@pytest.mark.query
+@pytest.mark.parametrize("url_index", [1,2])
+def test_query_project_or_suite(client, auth, url_index):
+    '''
+    获取项目或项目下所有测试集
+    '''
+    # 创建项目
+    res_project = create_project(client, auth)
+
+    res = client.post(
+        '/project/getall/{}'.format(url_index),
+        json={'p_id': res_project['res']['p_id']}
+    )
+
+    print('/project/getall/{} : {}'.format(url_index, res.json))
+
+    assert res.json['errcode'] == 0
