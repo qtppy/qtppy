@@ -13,6 +13,16 @@ import pytest
 
 
 def create_project(client, auth):
+    '''
+    创建项目功能函数
+    return: json示例
+
+    "res":{
+        "project_name": "我的第N+1个项目“,
+        "p_id": 1
+    }
+
+    '''
     # 创建项目
     auth.login()
     res = client.post(
@@ -130,6 +140,31 @@ def test_update_project(client, auth):
 def test_query_project_or_suite(client, auth, url_index):
     '''
     获取项目或项目下所有测试集
+
+    url: 
+        /project/getall/1获取所有项目
+        /project/getall/2获取项目下所有测试集
+            args: json参数
+            {
+                "p_id": '项目ID'
+            }
+
+    return: json示例
+    {
+        'errcode': 0, 
+        'errmsg': 'SUCCESS', 
+        'res': {
+            'project': [
+                {
+                    'p_id': 1, 
+                    'p_name': '我的第N+1个项目'
+                }, 
+                {
+                    'p_id': 2, 
+                    'p_name': '我的第N+1个项目'
+                }
+            ]
+    }
     '''
     # 创建项目
     res_project = create_project(client, auth)
@@ -142,3 +177,46 @@ def test_query_project_or_suite(client, auth, url_index):
     print('/project/getall/{} : {}'.format(url_index, res.json))
 
     assert res.json['errcode'] == 0
+
+
+'''
+/project/suite/create 创建测试集
+'''
+@pytest.mark.suite_create
+def test_create_suite(client, auth):
+    '''
+    根据项目ID，创建测试集
+
+    args: json示例
+
+    {
+        "s_name": "测试集名称",
+        "project_id": "项目ID"
+    }
+
+    return: json示例
+    {
+        'errcode': 0, 
+        'errmsg': '新建模块成功.', 
+        'res': {
+            'project_id': 117, 
+            'suite_id': 1, 
+            'suite_name': '我的第1个测试集'
+        }
+    }
+    '''
+    # 创建项目
+    res_project = create_project(client, auth)
+
+    res = client.post(
+        '/project/suite/create',
+        json={
+            'project_id': res_project['res']['p_id'],
+            's_name': '我的第1个测试集'
+        }
+    )
+
+    print('/project/suite/create : {}'.format(res.json))
+
+    assert '测试集' in res.json['res']['suite_name']
+
