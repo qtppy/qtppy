@@ -172,7 +172,7 @@ def get_suite_by_pid():
     '''
     根据项目id获取，该项目下的所有测试集
     '''
-    if request.method == 'GET':
+    if request.method == 'POST':
         error = None
         if not g.user.uid:
             error = 'is not required.'
@@ -180,15 +180,13 @@ def get_suite_by_pid():
         if error is not None:
             return jsonify(Const.NOT_LOGIN_DICT)
 
-        pid = request.args['pid']
-        suite_data = odb.query_per(TestSuite, 'p_id', int(pid))
+        pid = request.args['p_id']
+        suite_data = odb.query_per_all(TestSuite, 'p_id', int(pid))
 
         Const.SUCCESS_DICT['errmsg'] = 'SUCCESS'
         Const.SUCCESS_DICT['res'] = {
-            "suite":{
-                "sid": suite_data.sid,
-                "s_name": suite_data.s_name
-            }
+            "suite":[{"sid": sd.sid,"s_name": sd.s_name} for sd in suite_data],
+            "count": len(suite_data)
         }
         return jsonify(Const.SUCCESS_DICT)
 
@@ -226,7 +224,11 @@ def create_suite():
             {
                 "errcode": 0, 
                 "errmsg": "新建模块成功.", 
-                'res':{"suite_id": test_suite.sid, "suite_name": req_args['s_name'], "project_id": req_args['project_id']}
+                'res':{
+                    "suite_id": test_suite.sid, 
+                    "suite_name": req_args['s_name'], 
+                    "project_id": req_args['project_id']
+                }
             }
         )
     return abort(404)

@@ -8,19 +8,40 @@ class OperationDB:
         self.db = db
 
     def add(self, obj):
+        '''
+        根据据模型对象，insert数据
+        '''
         self.db.session.add(obj)
         self.db.session.commit()
 
+
     def query_all(self, table_class):
+        '''
+        查询模型下所有数据
+        '''
         all_data = table_class.query.all()
         return all_data
 
     def query_per(self, table_class, k, v):
+        '''
+        根据条件，查询模型下第一条数据
+        '''
         k = getattr(table_class, k)
         data = table_class.query.filter(k == v).first()
         return data
 
+    def query_per_all(self, table_class, k, v):
+        '''
+        根据条件查询所有数据
+        '''
+        k = getattr(table_class, k)
+        data = table_class.query.filter(k == v).all()
+        return data
+
     def update(self, table_class, k, v, **kwargs):
+        '''
+        根据条件更新数据
+        '''
         result = self.query_per(table_class, k, v)
 
         for k, v in kwargs.items():
@@ -30,6 +51,9 @@ class OperationDB:
 
 
     def delete(self, table_class, k, v):
+        '''
+        根据条件删除数据
+        '''
         result = self.query_per(table_class, k, v)
         self.db.session.delete(result)
         self.db.session.commit()

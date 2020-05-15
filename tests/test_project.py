@@ -220,3 +220,36 @@ def test_create_suite(client, auth):
 
     assert '测试集' in res.json['res']['suite_name']
 
+
+'''
+/project/suite/getlist 根据项目ID，获取所有该项目下所有测试集
+'''
+@pytest.mark.getall_suite
+def test_get_all_suite(client, auth):
+    '''
+    根据项目ID，获取所有该项目下所有测试集
+    args: params
+        {
+            "p_id": "项目ID"
+        }
+
+    return: json示例
+        {
+            'errcode': 0, 
+            'errmsg': 'SUCCESS', 
+            'res': {
+                'count': 1, 
+                'suite': [
+                    {'s_name': '我的第1个测试集', 'sid': 1},
+                ]
+            }
+        }
+    '''
+    auth.login()
+    res = client.post(
+        '/project/suite/getlist?p_id=%s' % '117'
+    )
+
+    print('/project/suite/getlist?p_id={} : {}'.format('117', res.json))
+
+    assert res.json['res']['suite']
