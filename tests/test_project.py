@@ -8,7 +8,23 @@ coverage run -m pytest -s
 ----------------------------------------------------------
 -m参数加标记，可以执行测试用例加@pytest.mark.update标记的用例
 coverage run -m pytest -s -m update 
+
+
+2.paginate的属性
+a)paginate.page 当前页数
+b)paginate.pages 总页数
+c)paginate.total 数据总条数
+d)paginate.has_prev 是否存在上一页
+返回布尔值
+
+e)paginate.has_next 是否存在下一页
+返回布尔值
+
+f)paginate.iter_pages() 所有页码
+返回列表 如[1, 2, 3, 4]
 '''
+
+
 import pytest
 
 
@@ -118,6 +134,16 @@ def test_update_project(client, auth):
     '''
     根据项目ID更新项目信息
     return: json示例
+        {
+            "errcode": 0,
+            "errmsg": "更新成功",
+            "res": {
+                "project": {
+                    "new_p_name": "我的第一个项目",
+                    "p_id": 17
+                }
+            }
+        }
     '''
     new_name = '我更新了项目名称'
 
@@ -216,6 +242,7 @@ def test_create_suite(client, auth):
         }
     )
 
+
     print('/project/suite/create : {}'.format(res.json))
 
     assert '测试集' in res.json['res']['suite_name']
@@ -247,9 +274,11 @@ def test_get_all_suite(client, auth):
     '''
     auth.login()
     res = client.post(
-        '/project/suite/getlist?p_id=%s' % '117'
+        '/project/suite/getlist?p_id=%s' % '17'
     )
 
     print('/project/suite/getlist?p_id={} : {}'.format('117', res.json))
 
     assert res.json['res']['suite']
+
+    

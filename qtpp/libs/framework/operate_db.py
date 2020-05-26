@@ -22,6 +22,18 @@ class OperationDB:
         all_data = table_class.query.all()
         return all_data
 
+
+    def query_all_paginate(self, table_class, page=1, per_page=10):
+        '''
+        查询分页数据
+        page：当前页
+        per_page: 分页条数
+        '''
+        paginate = table_class.query.paginate(page=page, per_page=per_page, error_out=False)
+
+        return paginate
+
+
     def query_per(self, table_class, k, v):
         '''
         根据条件，查询模型下第一条数据
@@ -30,6 +42,7 @@ class OperationDB:
         data = table_class.query.filter(k == v).first()
         return data
 
+
     def query_per_all(self, table_class, k, v):
         '''
         根据条件查询所有数据
@@ -37,6 +50,18 @@ class OperationDB:
         k = getattr(table_class, k)
         data = table_class.query.filter(k == v).all()
         return data
+
+
+    def query_per_paginate(self, table_class, k, v, page=1, per_page=10):
+        '''
+        根据条件查询并分页
+        page: 当前页
+        pre_page: 分页显示条数
+        '''
+        k = getattr(table_class, k)
+        paginate = table_class.query.filter(k == v).paginate(page=page, per_page=per_page, error_out=False)
+        return paginate
+
 
     def update(self, table_class, k, v, **kwargs):
         '''

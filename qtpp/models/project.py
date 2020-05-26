@@ -31,13 +31,16 @@ class Project(db.Model):
         comment='更新时间'
         )
     p_creator = db.Column(db.String(50), nullable=False, comment='创建者')
+    p_status = db.Column(db.Integer, nullable=False, default=0, comment='项目状态')
+    p_desc = db.Column(db.String(150), nullable=False, comment='项目描述')
     user_id = db.Column(db.Integer, db.ForeignKey('user.uid', ondelete='RESTRICT'), comment='用户ID')
     test_suite = db.relationship('TestSuite', backref=db.backref('project'), lazy='dynamic', cascade='all, delete-orphan')
 
-    def __init__(self, p_name, p_creator, user_id):
+    def __init__(self, p_name, p_creator, user_id, p_desc):
         self.p_name = p_name
         self.p_creator = p_creator
         self.user_id = user_id
+        self.p_desc = p_desc
 
     def __repr__(self):
         return "<ProjectID:%r>" % self.p_id
