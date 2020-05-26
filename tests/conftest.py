@@ -4,6 +4,7 @@ from qtpp import create_app
 import warnings
 warnings.filterwarnings("ignore")
 
+
 @pytest.fixture
 def app():
     app = create_app(config_name='test')

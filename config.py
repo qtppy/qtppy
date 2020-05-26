@@ -35,7 +35,7 @@ class BaseConfig:
 
 # 开发环境配置
 class DevConfig(BaseConfig):
-    pass
+    DEBUG = False
 
 # 测试环境配置
 class TestConfig(BaseConfig):

@@ -242,6 +242,7 @@ def test_create_suite(client, auth):
         }
     )
 
+
     print('/project/suite/create : {}'.format(res.json))
 
     assert '测试集' in res.json['res']['suite_name']
@@ -273,9 +274,11 @@ def test_get_all_suite(client, auth):
     '''
     auth.login()
     res = client.post(
-        '/project/suite/getlist?p_id=%s' % '117'
+        '/project/suite/getlist?p_id=%s' % '17'
     )
 
     print('/project/suite/getlist?p_id={} : {}'.format('117', res.json))
 
     assert res.json['res']['suite']
+
+    

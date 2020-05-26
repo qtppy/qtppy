@@ -8,7 +8,7 @@ from qtpp.exts import db
 1、应用工厂
 2、QTPPY是一个python包   
 '''
-def create_app(config_name='pro'):
+def create_app(config_name='dev'):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
 

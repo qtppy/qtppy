@@ -23,24 +23,24 @@ def create_project():
     '''
     if request.method == 'POST':
         project_name = request.json['name']
-
-        error = None
-        
+        p_desc = request.json['desc']
+     
         if not g.user.uid:
-            error = 'this is not required.'
-        
-        if error is not None: 
             # flash(error)
             return jsonify(Const.NOT_LOGIN_DICT)
 
-        projects = Project(project_name, g.user.username, g.user.uid)
+        projects = Project(project_name, g.user.username, g.user.uid, p_desc)
         odb.add(projects)
 
         
         Const.SUCCESS_DICT['errmsg'] = '创建项目成功.'
         Const.SUCCESS_DICT['res'] = {
             "project_name": project_name, 
-            "p_id": projects.p_id
+            "p_id": projects.p_id,
+            "p_desc": projects.p_desc,
+            "p_creator": projects.p_creator,
+            "p_status": projects.p_status,
+            "p_createtime": projects.create_time
         }
         return jsonify(Const.SUCCESS_DICT)
  
@@ -254,7 +254,7 @@ def create_suite():
         return jsonify(
             {
                 "errcode": 0, 
-                "errmsg": "新建模块成功.", 
+                "errmsg": "新建测试集成功.", 
                 'res':{
                     "suite_id": test_suite.sid, 
                     "suite_name": req_args['s_name'], 
@@ -263,6 +263,7 @@ def create_suite():
             }
         )
     return abort(404)
+
 
 @bp.route('/suite/delete', methods=('GET', 'POST'))
 @login_required
@@ -292,9 +293,43 @@ def delete_suite():
 
         Const.SUCCESS_DICT['errmsg'] = '删除成功'
         Const.SUCCESS_DICT['res'] = {
-            'project': del_res
+            'suite': del_res
         }
         return jsonify(Const.SUCCESS_DICT)
 
     
+    return abort(404)
+
+
+@bp.route('/suite/update', methods=['GET', 'POST'])
+@login_required
+def suite_update():
+    '''
+    更新测试集信息
+    '''
+    if request.method == 'POST':
+
+        if not g.user.uid:
+            return jsonify(Const.NOT_LOGIN_DICT)
+        
+        req_data_json = request.json
+
+        suite_dt = odb.update(
+            TestSuite, 
+            'sid', 
+            int(req_data_json['sid']),
+            s_name=req_data_json['s_name']
+        )
+
+        Const.SUCCESS_DICT['errmsg'] = '更新成功'
+        Const.SUCCESS_DICT['res'] = {
+            'suite': {
+                "sid": suite_dt.sid,
+                "new_s_name": suite_dt.s_name,
+                "p_id": suite_dt.p_id
+            }
+        }
+
+        return jsonify(Const.SUCCESS_DICT)
+
     return abort(404)
