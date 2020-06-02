@@ -8,9 +8,9 @@ from qtpp.exts import db
 1、应用工厂
 2、QTPPY是一个python包   
 '''
-def create_app(config_name='dev'):
+def create_app(config_name='pro'):
     # create and configure the app
-    app = Flask(__name__, instance_relative_config=True)
+    app = Flask(__name__)
 
 
     # 根据传入的环境名称获取配置
