@@ -4,13 +4,13 @@ from datetime import timedelta
 class BaseConfig:
     
     # 调试信息
-    DEBUG = True
+    DEBUG = False
 
     SECRET_KEY='dev'
 
     # 数据库信息
     DIALCT = 'mysql'
-    DRIVER = "pymysql"
+    DRIVER = "mysqlconnector"
     USERNAME = 'root'
     PASSWORD = '123456'
     HOST = '127.0.0.1'
@@ -26,7 +26,7 @@ class BaseConfig:
     SQLALCHEMY_TRACK_MODIFICATIONS = False        
 
     # 控制台输出sql消息:True不输出，False输出,
-    SQLALCHEMY_ECHO = True
+    # SQLALCHEMY_ECHO = False
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
 
 
@@ -35,7 +35,7 @@ class BaseConfig:
 
 # 开发环境配置
 class DevConfig(BaseConfig):
-    DEBUG = False
+    DEBUG = True
 
 # 测试环境配置
 class TestConfig(BaseConfig):
@@ -43,7 +43,7 @@ class TestConfig(BaseConfig):
 
 # 线上环境配置
 class ProConfig(BaseConfig):
-    DEBUG = False
+    pass
 
 
 # 统一访问入口
