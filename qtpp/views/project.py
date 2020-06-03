@@ -93,32 +93,28 @@ def update_project_info():
     params: p_id, name
     '''
     if request.method == 'POST':
-        error = None
 
         if not g.user.uid:
-            error = ''
-        
-        # 授权
-        if error is not None:
-            return jsonify(Const.NOT_LOGIN_DICT)
+            return jsonify(Const.errcode('1001'))
 
-        params =  request.args
+        params =  request.json
 
         # 按照项目ID，更新项目名称
         dt = odb.update(
-            Project, 'p_id', 
-            int(params['p_id']), 
-            p_name=params['name']
+            Project, 
+            'p_id', 
+            params['p_id'], 
+            p_name=params['p_name'],
+            p_desc=params['p_desc']
         )
 
-        Const.SUCCESS_DICT['errmsg'] = '更新成功'
-        Const.SUCCESS_DICT['res'] = {
+        res = {
             'project': {
                 "p_id": dt.p_id,
                 "new_p_name": dt.p_name
             }
         }
-        return jsonify(Const.SUCCESS_DICT)
+        return jsonify(Const.errcode('0', res=res))
 
     return abort(404)
 
@@ -171,7 +167,7 @@ def get_project_list():
             return jsonify(Const.errcode('1001'))
 
         # 请求url参数page
-        page = request.args.get('page', 1)
+        page = request.json.get('page', 1)
 
         # 分页展示
         paginate = odb.query_all_paginate(
