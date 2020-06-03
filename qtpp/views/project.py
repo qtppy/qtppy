@@ -22,19 +22,16 @@ def create_project():
     创建项目
     '''
     if request.method == 'POST':
-        project_name = request.json['name']
-        p_desc = request.json['desc']
+        project_name = request.json['p_name']
+        p_desc = request.json['p_desc']
      
         if not g.user.uid:
-            # flash(error)
-            return jsonify(Const.NOT_LOGIN_DICT)
+            return jsonify(Const.errcode('1001'))
 
         projects = Project(project_name, g.user.username, g.user.uid, p_desc)
         odb.add(projects)
 
-        
-        Const.SUCCESS_DICT['errmsg'] = '创建项目成功.'
-        Const.SUCCESS_DICT['res'] = {
+        res = {
             "project_name": project_name, 
             "p_id": projects.p_id,
             "p_desc": projects.p_desc,
@@ -42,7 +39,7 @@ def create_project():
             "p_status": projects.p_status,
             "p_createtime": projects.create_time
         }
-        return jsonify(Const.SUCCESS_DICT)
+        return jsonify(Const.errcode('0', res=res))
  
 
     return abort(404)
@@ -57,29 +54,23 @@ def delete_project():
         p_id: 项目ID
     '''
     if request.method == 'POST':
-        error = None
 
         if not g.user.uid:
-            error = 'this is not required.'
-        
-        # 授权
-        if error is not None:
-            return jsonify(Const.NOT_LOGIN_DICT)
+            return jsonify(Const.errcode('1101'))
 
-
+        # 获取参数p_id
         p_id_lst = request.json
+
 
         del_res = []
         for p_id in p_id_lst['p_id']:
             dt = odb.delete(Project, 'p_id', int(p_id))
             del_res.append({"p_id": p_id, "p_name": dt.p_name})
-            
 
-        Const.SUCCESS_DICT['errmsg'] = '删除成功'
-        Const.SUCCESS_DICT['res'] = {
+        res = {
             'project': del_res
         }
-        return jsonify(Const.SUCCESS_DICT)
+        return jsonify(Const.errcode('0', res=res))
 
     return abort(404)
 
@@ -127,7 +118,7 @@ def get_project_list():
 
     Args: 
         page: url params请求参数, 不传默认为1
-
+        p_name: 项目名称查询
     return:
         {
             "errcode": 0,
@@ -168,12 +159,17 @@ def get_project_list():
 
         # 请求url参数page
         page = request.json.get('page', 1)
+        p_name = request.json.get('p_name', '')
 
-        # 分页展示
-        paginate = odb.query_all_paginate(
-            Project, 
-            page=int(page)
-        )
+        if not p_name:
+
+            # 分页展示
+            paginate = odb.query_all_paginate(
+                Project, 
+                page=int(page)
+            )
+        else:
+            paginate = odb.query_per_paginate(Project, 'p_name', p_name, page=int(page))
 
         # response数据组装
         res = {
