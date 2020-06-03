@@ -32,7 +32,7 @@ manager.add_command('db', MigrateCommand)
 def runserver():
     """启动服务"""
     print("renserver")
-    app.run()
+    app.run(debug=False)
 
 
 if __name__ == '__main__':

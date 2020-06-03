@@ -1,13 +1,14 @@
 import functools
 
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, session, url_for
+    Blueprint, flash, g, redirect, render_template, request, session, url_for, jsonify, abort
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 
 
 from qtpp import db
 from qtpp.libs.framework.operate_db import OperationDB
+from qtpp.libs.framework.constant import Const
 
 from qtpp.models.user import User
 
@@ -63,8 +64,8 @@ def register():
 @bp.route('/login', methods=('GET', 'POST'))
 def login():
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
+        username = request.json['username']
+        password = request.json['password']
 
         error = None
 
@@ -77,19 +78,23 @@ def login():
         # 会话数据被储存到一个 向浏览器发送的 cookie 中，在后继请求中，浏览器会返回它。 
         # Flask 会安全对数据进行 签名 以防数据被篡改。
 
-        if user is None:
-            error = 'Incorrect username.'
-        elif not check_password_hash(user.password, password):
-            error = 'Incorrect password.'
+        if (user is None) or (not check_password_hash(user.password, password)):
+            return jsonify(Const.errcode('1103'))
 
         if error is None:
             session.clear()
             session['user_id'] = user.uid
-            return redirect(url_for('index'))
 
-        flash(error)
+            res = {
+                "user_id": user.uid,
+                "name": user.username
+            }
 
-    return render_template('auth/login.html')
+            return jsonify(Const.errcode('0', res=res))
+
+        # flash(error)
+
+    return abort(404)
 
 
 '''
