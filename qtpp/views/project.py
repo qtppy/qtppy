@@ -160,16 +160,19 @@ def get_project_list():
         # 请求url参数page
         page = request.json.get('page', 1)
         p_name = request.json.get('p_name', '')
+        p_id = request.json.get('p_id', '')
 
-        if not p_name:
+        # 可按pid与name查询，pid优先
+        if p_id:
+            paginate = odb.query_per_paginate(Project, 'p_id', p_id, page=int(page))
 
-            # 分页展示
+        elif p_name:
+            paginate = odb.query_per_paginate(Project, 'p_name', p_name, page=int(page))       
+        else:
             paginate = odb.query_all_paginate(
                 Project, 
                 page=int(page)
             )
-        else:
-            paginate = odb.query_per_paginate(Project, 'p_name', p_name, page=int(page))
 
         # response数据组装
         res = {
@@ -367,17 +370,22 @@ def create_suite():
         test_suite = TestSuite(
                 req_args['s_name'], 
                 g.user.username, 
-                req_args['project_id']
+                req_args['project_id'],
+                req_args['s_desc']
         )
+        # 新增测试集，同步更新项目状态
         odb.add(test_suite)
+        odb.update(Project, 'p_id', req_args['project_id'], p_status=1)
 
         res = {
             "suite_id": test_suite.sid, 
             "suite_name": req_args['s_name'], 
+            "description": req_args['s_desc'],
             "project_id": req_args['project_id'],
             "create_time": test_suite.create_time,
             "creator": test_suite.p_creator
-        }        
+        }
+
 
         return jsonify(Const.errcode('0', res=res))
 
