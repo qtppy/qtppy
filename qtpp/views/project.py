@@ -363,7 +363,7 @@ def create_suite():
     if request.method == 'POST':
 
         if not g.user.uid:
-            return jsonify(Const.errcode('1101'))
+            return jsonify(Const.errcode('1001'))
 
         req_args = request.json
 
@@ -404,7 +404,7 @@ def delete_suite():
     if request.method == 'POST':
 
         if not g.user.uid:
-            return jsonify(Const.errcode('1101'))
+            return jsonify(Const.errcode('1001'))
 
         s_id_lst = request.json
 
@@ -436,7 +436,7 @@ def suite_update():
     if request.method == 'POST':
 
         if not g.user.uid:
-            return jsonify(Const.errcode('1101'))
+            return jsonify(Const.errcode('1001'))
         
         req_data_json = request.json
 

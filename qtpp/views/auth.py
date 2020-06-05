@@ -79,7 +79,7 @@ def login():
         # Flask 会安全对数据进行 签名 以防数据被篡改。
 
         if (user is None) or (not check_password_hash(user.password, password)):
-            return jsonify(Const.errcode('1103'))
+            return jsonify(Const.errcode('1003'))
 
         if error is None:
             session.clear()
