@@ -1,4 +1,8 @@
 '''
+    创建数据库2个命令：
+    create database qtppdb;
+    GRANT SELECT,INSERT,UPDATE,DELETE,CREATE,DROP,ALTER ON 数据库名.* TO 数据库名@localhost IDENTIFIED BY '密码';
+
     API:https://flask-migrate.readthedocs.io/en/latest/
     # 对数据库的操作
     python manage.py db init

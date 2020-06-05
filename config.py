@@ -1,3 +1,8 @@
+'''
+pip install mysql-connector
+DRIVER: "mysqlconnector"
+'''
+
 from datetime import timedelta
 # from redis import StrictRedis
 

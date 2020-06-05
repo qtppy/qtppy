@@ -51,6 +51,7 @@ class TestSuite(db.Model):
     __tablename__ = 'p_test_suite'
     sid = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True, comment='测试集ID')
     s_name = db.Column(db.String(50), nullable=False, comment='模块名称或测试集名称')
+    s_desc = db.Column(db.String(150), nullable=False, comment='测试集描述')
 
     create_time = db.Column(db.DateTime, default=datetime.datetime.now(), comment='创建时间')
     update_time = db.Column(
@@ -62,10 +63,11 @@ class TestSuite(db.Model):
     p_creator = db.Column(db.String(50), nullable=False, comment='创建者')
     p_id = db.Column(db.Integer, db.ForeignKey('project.p_id', ondelete='CASCADE'), comment='项目ID')
 
-    def __init__(self, s_name, p_creator, p_id):
+    def __init__(self, s_name, p_creator, p_id, s_desc=''):
         self.s_name = s_name
         self.p_creator = p_creator
         self.p_id = p_id
+        self.s_desc = s_desc
 
     def __repr__(self):
         return '<Suite ID:%r>' % self.sid

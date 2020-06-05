@@ -110,6 +110,69 @@ def update_project_info():
     return abort(404)
 
 
+@bp.route('/getAllList', methods=['GET', 'POST'])
+@login_required
+def get_all_project_list():
+    '''
+    获取所有项目
+    Args: 
+        page: url params请求参数, 不传默认为1
+        p_name: 项目名称查询
+    return:
+        {
+            "errcode": 0,
+            "errmsg": "SUCCESS",
+            "res": {
+                "next_page": 3,
+                "page": 2,
+                "pages": 4,
+                "per_page": 10,
+                "prev_num": 1,
+                "project": [
+                    {
+                        "create_time": "Tue, 26 May 2020 17:30:32 GMT",
+                        "p_d": "xzdylyh",
+                        "p_desc": "这是项目描述，我最多支持150字符",
+                        "p_id": 11,
+                        "p_name": "我的第1个项目",
+                        "p_status": 0
+                    },
+                    {
+                        "create_time": "Tue, 26 May 2020 17:35:20 GMT",
+                        "p_d": "xzdylyh",
+                        "p_desc": "这是项目描述，我最多支持150字符",
+                        "p_id": 12,
+                        "p_name": "我的第1个项目",
+                        "p_status": 0
+                    }
+                ],
+                "total": 39
+            }
+        }  
+    '''
+    if request.method == 'POST':
+        if not g.user.uid:
+            return Const.errcode('1001')
+
+        dt = odb.query_per_all(Project, 'p_creator', g.user.username)
+
+        # response数据组装
+        res = {
+            "project": [{
+                "create_time": item.create_time, 
+                "p_id": item.p_id, 
+                "p_name": item.p_name,
+                "p_desc": item.p_desc,
+                "p_status": item.p_status,
+                "p_creator": item.p_creator
+            } for item in dt]
+        }
+
+        return jsonify(Const.errcode('0', res=res))
+
+    return abort(404)
+
+
 @bp.route('/getlist', methods=['GET', 'POST'])
 @login_required
 def get_project_list():
@@ -160,16 +223,19 @@ def get_project_list():
         # 请求url参数page
         page = request.json.get('page', 1)
         p_name = request.json.get('p_name', '')
+        p_id = request.json.get('p_id', '')
 
-        if not p_name:
+        # 可按pid与name查询，pid优先
+        if p_id:
+            paginate = odb.query_per_paginate(Project, 'p_id', p_id, page=int(page))
 
-            # 分页展示
+        elif p_name:
+            paginate = odb.query_per_paginate(Project, 'p_name', p_name, page=int(page))       
+        else:
             paginate = odb.query_all_paginate(
                 Project, 
                 page=int(page)
             )
-        else:
-            paginate = odb.query_per_paginate(Project, 'p_name', p_name, page=int(page))
 
         # response数据组装
         res = {
@@ -360,24 +426,29 @@ def create_suite():
     if request.method == 'POST':
 
         if not g.user.uid:
-            return jsonify(Const.errcode('1101'))
+            return jsonify(Const.errcode('1001'))
 
         req_args = request.json
 
         test_suite = TestSuite(
                 req_args['s_name'], 
                 g.user.username, 
-                req_args['project_id']
+                req_args['project_id'],
+                req_args['s_desc']
         )
+        # 新增测试集，同步更新项目状态
         odb.add(test_suite)
+        odb.update(Project, 'p_id', req_args['project_id'], p_status=1)
 
         res = {
             "suite_id": test_suite.sid, 
             "suite_name": req_args['s_name'], 
+            "description": req_args['s_desc'],
             "project_id": req_args['project_id'],
             "create_time": test_suite.create_time,
             "creator": test_suite.p_creator
-        }        
+        }
+
 
         return jsonify(Const.errcode('0', res=res))
 
@@ -396,7 +467,7 @@ def delete_suite():
     if request.method == 'POST':
 
         if not g.user.uid:
-            return jsonify(Const.errcode('1101'))
+            return jsonify(Const.errcode('1001'))
 
         s_id_lst = request.json
 
@@ -428,7 +499,7 @@ def suite_update():
     if request.method == 'POST':
 
         if not g.user.uid:
-            return jsonify(Const.errcode('1101'))
+            return jsonify(Const.errcode('1001'))
         
         req_data_json = request.json
 
