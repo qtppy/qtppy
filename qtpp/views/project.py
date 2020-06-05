@@ -110,6 +110,69 @@ def update_project_info():
     return abort(404)
 
 
+@bp.route('/getAllList', methods=['GET', 'POST'])
+@login_required
+def get_all_project_list():
+    '''
+    获取所有项目
+    Args: 
+        page: url params请求参数, 不传默认为1
+        p_name: 项目名称查询
+    return:
+        {
+            "errcode": 0,
+            "errmsg": "SUCCESS",
+            "res": {
+                "next_page": 3,
+                "page": 2,
+                "pages": 4,
+                "per_page": 10,
+                "prev_num": 1,
+                "project": [
+                    {
+                        "create_time": "Tue, 26 May 2020 17:30:32 GMT",
+                        "p_d": "xzdylyh",
+                        "p_desc": "这是项目描述，我最多支持150字符",
+                        "p_id": 11,
+                        "p_name": "我的第1个项目",
+                        "p_status": 0
+                    },
+                    {
+                        "create_time": "Tue, 26 May 2020 17:35:20 GMT",
+                        "p_d": "xzdylyh",
+                        "p_desc": "这是项目描述，我最多支持150字符",
+                        "p_id": 12,
+                        "p_name": "我的第1个项目",
+                        "p_status": 0
+                    }
+                ],
+                "total": 39
+            }
+        }  
+    '''
+    if request.method == 'POST':
+        if not g.user.uid:
+            return Const.errcode('1001')
+
+        dt = odb.query_per_all(Project, 'p_creator', g.user.username)
+
+        # response数据组装
+        res = {
+            "project": [{
+                "create_time": item.create_time, 
+                "p_id": item.p_id, 
+                "p_name": item.p_name,
+                "p_desc": item.p_desc,
+                "p_status": item.p_status,
+                "p_creator": item.p_creator
+            } for item in dt]
+        }
+
+        return jsonify(Const.errcode('0', res=res))
+
+    return abort(404)
+
+
 @bp.route('/getlist', methods=['GET', 'POST'])
 @login_required
 def get_project_list():
