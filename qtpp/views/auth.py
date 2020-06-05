@@ -84,6 +84,7 @@ def login():
         if error is None:
             session.clear()
             session['user_id'] = user.uid
+            session['user_name'] = user.username
 
             res = {
                 "user_id": user.uid,
