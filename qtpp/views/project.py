@@ -524,6 +524,29 @@ def create_suite():
 
     return abort(404)
 
+@bp.route('/suite/getSuitebySid', methods=('GET', 'POST'))
+@login_required
+def get_suite_by_sid():
+    '''
+    根据sid获取测试集数据
+    '''
+    if request.method == 'POST':
+        
+        if not g.user.uid:
+            return jsonify(Const.errcode('1001'))
+        
+        sid = request.json['sid']
+        dt = odb.query_per(TestSuite, 'sid', int(sid))
+
+        res = {
+            'sid': dt.sid,
+            's_name': dt.s_name,
+            's_desc': dt.s_desc
+        }
+
+        return jsonify(Const.errcode('0', res=res))
+
+    return abort(404)
 
 @bp.route('/suite/delete', methods=('GET', 'POST'))
 @login_required
@@ -577,7 +600,8 @@ def suite_update():
             TestSuite, 
             'sid', 
             int(req_data_json['sid']),
-            s_name=req_data_json['s_name']
+            s_name=req_data_json['s_name'],
+            s_desc=req_data_json['s_desc']
         )
 
         res = {
