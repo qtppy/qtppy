@@ -333,6 +333,76 @@ def get_all_suite_list():
     return abort(404)
 
 
+@bp.route('/suite/getlistbyId', methods=('GET', 'POST'))
+@login_required
+def get_all_suite_by_pid():
+    '''
+    根据项目id获取，该项目下的所有测试集
+
+    Args: params参数
+        p_id: 项目ID
+
+    Return:
+        {
+            "errcode": 0,
+            "errmsg": "success",
+            "res": {
+                "count": 10,
+                "next_page": 2,
+                "page": 1,
+                "pages": 2,
+                "per_page": 10,
+                "prev_num": null,
+                "suite": [
+                    {
+                        "create_time": "Tue, 02 Jun 2020 17:06:50 GMT",
+                        "creator": "xzdylyh",
+                        "p_id": 2,
+                        "s_name": "我的测试集",
+                        "sid": 1
+                    },
+                    {
+                        "create_time": "Tue, 02 Jun 2020 17:08:35 GMT",
+                        "creator": "xzdylyh",
+                        "p_id": 2,
+                        "s_name": "我的测试集",
+                        "sid": 2
+                    }
+                ],
+                "total": 11
+            }
+        }
+    '''
+    if request.method == 'POST':
+
+        if not g.user.uid:
+            return jsonify(Const.errcode('1001'))
+
+        pid = request.json['p_id']
+
+
+  
+        dt_lst = odb.query_per_all(
+            TestSuite, 
+            'p_id', 
+            int(pid)
+        )
+
+        res = {
+            "suite":[{
+                "sid": sd.sid,
+                "s_name": sd.s_name,
+                "create_time": sd.create_time,
+                "creator": sd.p_creator,
+                "p_id": sd.p_id
+            } for sd in dt_lst],
+            "count": len(dt_lst)
+        }
+        return jsonify(Const.errcode('0', res=res))
+
+    return abort(404)
+
+
 @bp.route('/suite/getlist', methods=('GET', 'POST'))
 @login_required
 def get_suite_by_pid():
@@ -454,6 +524,29 @@ def create_suite():
 
     return abort(404)
 
+@bp.route('/suite/getSuitebySid', methods=('GET', 'POST'))
+@login_required
+def get_suite_by_sid():
+    '''
+    根据sid获取测试集数据
+    '''
+    if request.method == 'POST':
+        
+        if not g.user.uid:
+            return jsonify(Const.errcode('1001'))
+        
+        sid = request.json['sid']
+        dt = odb.query_per(TestSuite, 'sid', int(sid))
+
+        res = {
+            'sid': dt.sid,
+            's_name': dt.s_name,
+            's_desc': dt.s_desc
+        }
+
+        return jsonify(Const.errcode('0', res=res))
+
+    return abort(404)
 
 @bp.route('/suite/delete', methods=('GET', 'POST'))
 @login_required
@@ -507,7 +600,8 @@ def suite_update():
             TestSuite, 
             'sid', 
             int(req_data_json['sid']),
-            s_name=req_data_json['s_name']
+            s_name=req_data_json['s_name'],
+            s_desc=req_data_json['s_desc']
         )
 
         res = {

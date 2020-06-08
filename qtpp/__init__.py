@@ -39,4 +39,8 @@ def create_app(config_name='pro'):
     from .views import project
     app.register_blueprint(project.bp)
 
+    # 导入用例蓝图
+    from .views import case
+    app.register_blueprint(case.bp)
+
     return app
