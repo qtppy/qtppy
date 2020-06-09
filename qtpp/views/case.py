@@ -1,5 +1,5 @@
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for, jsonify, abort
+    Blueprint, flash, g, redirect, render_template, request, url_for, jsonify
 )
 from werkzeug.exceptions import abort
 from qtpp.views.auth import login_required
@@ -8,6 +8,7 @@ from qtpp import db
 from qtpp.libs.framework.operate_db import OperationDB
 from qtpp.libs.framework.constant import Const
 from qtpp.models.case import CaseInterface
+
 '''
 用例蓝图与验证蓝图所使用的技术一样。
 用例页面应当列出所有的case，允许已登录 用户创建用例，并允许创建者修改和删除用例。
@@ -34,17 +35,19 @@ def create():
         odb.add(
             CaseInterface(
                 para_json['name'],
-                g.user.name,
+                g.user.username,
                 para_json['method'],
                 para_json['url'],
-                para_json['header'],
-                para_json['body']
+                repr(para_json['header']),
+                repr(para_json['body']),
+                repr(para_json['params']),
+                repr(para_json['fmt'])
             )
         )
 
         res = {
             "name": para_json['name'],
-            "creator": g.user.name 
+            "creator": g.user.username 
         }
         return jsonify(Const.errcode('0', res=res))
 

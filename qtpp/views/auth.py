@@ -31,10 +31,8 @@ def register():
     要么创建新用户并显示登录页面。
     '''
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-
-        error = None
+        username = request.json['username']
+        password = request.json['password']
 
         # 带有 ? 占位符 的 SQL 查询语句。占位符可以代替后面的元组参数中相应的值。
         # 使用占位符的 好处是会自动帮你转义输入值，以抵御 SQL 注入攻击 。
@@ -44,21 +42,18 @@ def register():
         #  url_for() 根据登录视图的名称生成相应的 URL
 
         
-        if not username:
-            error = 'Username is required.'
-        elif not password:
-            error = 'Password is required.'
-        elif odb.query_per(User, 'username', username) is not None:
-            error = 'User {} is already registered.'.format(username)
+        if not (username and password) :
+            return jsonify(Const.errcode('1004'))
 
-        if error is None:
-            odb.add(User(username, generate_password_hash(password)))
+        if odb.query_per(User, 'username', username) is not None:
+            return jsonify(Const.errcode('1005', res={"username": username}))
 
-            return redirect(url_for('auth.login'))
 
-        flash(error)  #flash() 用于储存在渲染模块时可以调用的信息。
+        odb.add(User(username, generate_password_hash(password)))
 
-    return render_template('auth/register.html')
+        return jsonify(Const.errcode('0', res={"username": username}))
+
+    return abort(404)
 
 
 @bp.route('/login', methods=('GET', 'POST'))
