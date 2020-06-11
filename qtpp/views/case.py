@@ -89,6 +89,55 @@ def create():
 def get_case_list():
     '''
     获取case信息
+
+    Args:
+        page 当前页
+        name 按名称获取用例，可选
+
+    Method: POST
+
+    Fmt: JSON
+
+    Example:
+        axios.post('/case/getcaselist', params)
+
+    Returns:
+        {
+            "errcode": 0,
+            "errmsg": "success",
+            "res": {
+                "case": [
+                    {
+                        "body": "{}",
+                        "createtime": "Thu, 11 Jun 2020 14:05:03 GMT",
+                        "creator": "admin",
+                        "desc": "",
+                        "headers": "{}",
+                        "id": 1,
+                        "method": "post",
+                        "name": "/user/account",
+                        "url": "http://api.xxxx.acewill.net/user/account"
+                    },
+                    {
+                        "body": "{}",
+                        "createtime": "Thu, 11 Jun 2020 14:19:20 GMT",
+                        "creator": "admin",
+                        "desc": "'这是一个测试用例描述'",
+                        "headers": "{}",
+                        "id": 2,
+                        "method": "post",
+                        "name": "/user/account",
+                        "url": "http://api.xxxx.acewill.net/user/account"
+                    }
+                ],
+                "next_num": null,
+                "page": 1,
+                "pages": 1,
+                "per_page": 10,
+                "prev_num": null,
+                "total": 2
+            }
+        }
     '''
     if request.method == "POST":
         
@@ -134,6 +183,47 @@ def get_case_list():
 >>>>>>> dev
         }
 
+        return jsonify(Const.errcode('0', res=res))
+
+    return abort(404)
+
+
+@bp.route('/delete', methods=['GET', 'POST'])
+@login_required
+def delete_case():
+    '''
+    根据用例ID，删除case
+
+    Args:
+        id [] 测试用例id
+
+    Method: POST
+
+    Fmt: JSON
+
+    Example:
+        axios.post('/case/delete', params)   
+
+    '''
+    if request.method == 'POST':
+
+        # 验证授权
+        if not g.user.uid:
+            return jsonify(Const.errcode('1004'))
+        
+        id_lst = request.json['id']
+
+        # 循环删除case
+        res = []
+        for id in id_lst:
+            dt = odb.delete(CaseInterface, 'c_id', id)
+            res.append(
+                {
+                    "name": dt.c_name,
+                    "desc": dt.c_desc,
+                    "id": dt.c_id
+                }
+            )
         return jsonify(Const.errcode('0', res=res))
 
     return abort(404)
