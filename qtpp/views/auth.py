@@ -44,21 +44,18 @@ def register():
         #  url_for() 根据登录视图的名称生成相应的 URL
 
         
-        if not username:
-            error = 'Username is required.'
-        elif not password:
-            error = 'Password is required.'
+        if not (username and password):
+            return jsonify(Const.errcode('1003'))
+
         elif odb.query_per(User, 'username', username) is not None:
-            error = 'User {} is already registered.'.format(username)
+            return jsonify(Const.errcode('1004', res={"username": username}))
 
-        if error is None:
-            odb.add(User(username, generate_password_hash(password)))
+        
+        odb.add(User(username, generate_password_hash(password)))
 
-            return redirect(url_for('auth.login'))
+        return jsonify(Const.errcode('0'))
 
-        flash(error)  #flash() 用于储存在渲染模块时可以调用的信息。
-
-    return render_template('auth/register.html')
+    return abort(404)
 
 
 @bp.route('/login', methods=('GET', 'POST'))
@@ -121,7 +118,7 @@ def load_logged_in_user():
 @bp.route('/logout')
 def logout():
     session.clear()
-    return redirect(url_for('index'))
+    return jsonify(Const.errcode('0'))
 
 
 '''
@@ -135,8 +132,7 @@ def login_required(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):
         if g.user is None:
-            return redirect(url_for('auth.login'))
+            return jsonify(Const.errcode('1001'))
 
         return view(**kwargs)
-
     return wrapped_view
