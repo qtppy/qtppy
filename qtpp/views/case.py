@@ -183,15 +183,27 @@ def delete_case():
     根据用例ID，删除case
 
     Args:
-        id [] 测试用例id
+        id [1,2,3] 测试用例id
 
     Method: POST
 
     Fmt: JSON
 
     Example:
-        axios.post('/case/delete', params)   
-
+        axios.post('/case/delete', params)
+    
+    Returns:
+        {
+            "errcode": 0,
+            "errmsg": "success",
+            "res": [
+                {
+                    "desc": "",
+                    "id": 1,
+                    "name": "/user/account"
+                }
+            ]
+        }
     '''
     if request.method == 'POST':
 
