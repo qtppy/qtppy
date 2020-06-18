@@ -227,3 +227,5 @@ def delete_case():
         return jsonify(Const.errcode('0', res=res))
 
     return abort(404)
+
+
