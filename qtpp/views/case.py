@@ -1,5 +1,5 @@
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for, jsonify
+    Blueprint, flash, g, redirect, render_template, request, url_for, jsonify, abort
 )
 from werkzeug.exceptions import abort
 from qtpp.views.auth import login_required
@@ -8,7 +8,6 @@ from qtpp import db
 from qtpp.libs.framework.operate_db import OperationDB
 from qtpp.libs.framework.constant import Const
 from qtpp.models.case import CaseInterface
-
 '''
 用例蓝图与验证蓝图所使用的技术一样。
 用例页面应当列出所有的case，允许已登录 用户创建用例，并允许创建者修改和删除用例。
@@ -184,15 +183,27 @@ def delete_case():
     根据用例ID，删除case
 
     Args:
-        id [] 测试用例id
+        id [1,2,3] 测试用例id
 
     Method: POST
 
     Fmt: JSON
 
     Example:
-        axios.post('/case/delete', params)   
-
+        axios.post('/case/delete', params)
+    
+    Returns:
+        {
+            "errcode": 0,
+            "errmsg": "success",
+            "res": [
+                {
+                    "desc": "",
+                    "id": 1,
+                    "name": "/user/account"
+                }
+            ]
+        }
     '''
     if request.method == 'POST':
 
@@ -216,3 +227,5 @@ def delete_case():
         return jsonify(Const.errcode('0', res=res))
 
     return abort(404)
+
+
