@@ -58,24 +58,14 @@ def create():
                 g.user.username,
                 para_json['method'],
                 para_json['url'],
-<<<<<<< HEAD
-                repr(para_json['header']),
-                repr(para_json['body']),
-                repr(para_json['params']),
-                repr(para_json['fmt'])
-=======
                 para_json['header'],
                 para_json['body'],
                 para_json['desc']
->>>>>>> dev
             )
         )
 
         res = {
             "name": para_json['name'],
-<<<<<<< HEAD
-            "creator": g.user.username 
-=======
             "desc": para_json['desc'],
             "creator": g.user.username
         }
@@ -180,7 +170,6 @@ def get_case_list():
                     "createtime": val.create_time
                 } for val in paginate.items
             ]
->>>>>>> dev
         }
 
         return jsonify(Const.errcode('0', res=res))
