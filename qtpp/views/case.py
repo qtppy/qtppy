@@ -1,5 +1,5 @@
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for, jsonify
+    Blueprint, flash, g, redirect, render_template, request, url_for, jsonify, abort
 )
 from werkzeug.exceptions import abort
 from qtpp.views.auth import login_required
@@ -8,7 +8,6 @@ from qtpp import db
 from qtpp.libs.framework.operate_db import OperationDB
 from qtpp.libs.framework.constant import Const
 from qtpp.models.case import CaseInterface
-
 '''
 用例蓝图与验证蓝图所使用的技术一样。
 用例页面应当列出所有的case，允许已登录 用户创建用例，并允许创建者修改和删除用例。
@@ -58,24 +57,14 @@ def create():
                 g.user.username,
                 para_json['method'],
                 para_json['url'],
-<<<<<<< HEAD
-                repr(para_json['header']),
-                repr(para_json['body']),
-                repr(para_json['params']),
-                repr(para_json['fmt'])
-=======
                 para_json['header'],
                 para_json['body'],
                 para_json['desc']
->>>>>>> dev
             )
         )
 
         res = {
             "name": para_json['name'],
-<<<<<<< HEAD
-            "creator": g.user.username 
-=======
             "desc": para_json['desc'],
             "creator": g.user.username
         }
@@ -89,6 +78,55 @@ def create():
 def get_case_list():
     '''
     获取case信息
+
+    Args:
+        page 当前页
+        name 按名称获取用例，可选
+
+    Method: POST
+
+    Fmt: JSON
+
+    Example:
+        axios.post('/case/getcaselist', params)
+
+    Returns:
+        {
+            "errcode": 0,
+            "errmsg": "success",
+            "res": {
+                "case": [
+                    {
+                        "body": "{}",
+                        "createtime": "Thu, 11 Jun 2020 14:05:03 GMT",
+                        "creator": "admin",
+                        "desc": "",
+                        "headers": "{}",
+                        "id": 1,
+                        "method": "post",
+                        "name": "/user/account",
+                        "url": "http://api.xxxx.acewill.net/user/account"
+                    },
+                    {
+                        "body": "{}",
+                        "createtime": "Thu, 11 Jun 2020 14:19:20 GMT",
+                        "creator": "admin",
+                        "desc": "'这是一个测试用例描述'",
+                        "headers": "{}",
+                        "id": 2,
+                        "method": "post",
+                        "name": "/user/account",
+                        "url": "http://api.xxxx.acewill.net/user/account"
+                    }
+                ],
+                "next_num": null,
+                "page": 1,
+                "pages": 1,
+                "per_page": 10,
+                "prev_num": null,
+                "total": 2
+            }
+        }
     '''
     if request.method == "POST":
         
@@ -131,9 +169,63 @@ def get_case_list():
                     "createtime": val.create_time
                 } for val in paginate.items
             ]
->>>>>>> dev
         }
 
         return jsonify(Const.errcode('0', res=res))
 
     return abort(404)
+
+
+@bp.route('/delete', methods=['GET', 'POST'])
+@login_required
+def delete_case():
+    '''
+    根据用例ID，删除case
+
+    Args:
+        id [1,2,3] 测试用例id
+
+    Method: POST
+
+    Fmt: JSON
+
+    Example:
+        axios.post('/case/delete', params)
+    
+    Returns:
+        {
+            "errcode": 0,
+            "errmsg": "success",
+            "res": [
+                {
+                    "desc": "",
+                    "id": 1,
+                    "name": "/user/account"
+                }
+            ]
+        }
+    '''
+    if request.method == 'POST':
+
+        # 验证授权
+        if not g.user.uid:
+            return jsonify(Const.errcode('1004'))
+        
+        id_lst = request.json['id']
+
+        # 循环删除case
+        res = []
+        for id in id_lst:
+            dt = odb.delete(CaseInterface, 'c_id', id)
+            res.append(
+                {
+                    "name": dt.c_name,
+                    "desc": dt.c_desc,
+                    "id": dt.c_id
+                }
+            )
+        return jsonify(Const.errcode('0', res=res))
+
+    return abort(404)
+
+
