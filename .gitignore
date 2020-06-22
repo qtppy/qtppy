@@ -11,3 +11,4 @@ build/
 temp.py
 *.tom
 migrations/
+upload/
