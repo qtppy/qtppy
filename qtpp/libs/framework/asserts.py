@@ -26,6 +26,12 @@ class BY_T:
     RES_BODY = 2 # 响应body
     REFER = 3 # 出参
 
+class BY_HOW:
+    NONE = 0
+    FORM_DATA = 1
+    X_WWW_FORM_URLENCODED = 2
+    RAW = 3
+
 
 class BY_M:
     '''
