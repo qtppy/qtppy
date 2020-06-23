@@ -42,19 +42,6 @@ def register():
         #  url_for() 根据登录视图的名称生成相应的 URL
 
         
-<<<<<<< HEAD
-        if not (username and password) :
-            return jsonify(Const.errcode('1004'))
-
-        if odb.query_per(User, 'username', username) is not None:
-            return jsonify(Const.errcode('1005', res={"username": username}))
-
-
-        odb.add(User(username, generate_password_hash(password)))
-
-        return jsonify(Const.errcode('0', res={"username": username}))
-
-=======
         if not (username and password):
             return jsonify(Const.errcode('1003'))
 
@@ -66,7 +53,6 @@ def register():
 
         return jsonify(Const.errcode('0'))
 
->>>>>>> dev
     return abort(404)
 
 
