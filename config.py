@@ -34,6 +34,9 @@ class BaseConfig:
     # SQLALCHEMY_ECHO = False
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
 
+    # 上传文件
+    UPLOAD_FOLDER = 'upload_files'
+    ALLOW_EXTENSIONS = ['png', 'jpg', 'jpeg', 'txt', 'xls', 'xlsx']
 
 
 
