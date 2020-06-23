@@ -27,10 +27,10 @@ class BY_T:
     REFER = 3 # 出参
 
 class BY_HOW:
-    NONE = 0
-    FORM_DATA = 1
-    X_WWW_FORM_URLENCODED = 2
-    RAW = 3
+    NONE = 1
+    FORM_DATA = 2
+    X_WWW_FORM_URLENCODED = 3
+    RAW = 4
 
 
 class BY_M:
