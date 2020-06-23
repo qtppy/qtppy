@@ -1,5 +1,6 @@
 import os
 import hashlib
+import requests
 from qtpp import setting
 
 def parse_string_eval(string):
@@ -115,4 +116,39 @@ def md5_filename(filename):
     return '{}{}'.format(
         hashlib.md5(filename.encode('utf-8')).hexdigest(), 
         suffix
+    )
+
+
+def dict_from_cookiejar(cookiejar):
+    '''
+    cookie对象转为字典对象
+
+    Args:
+        cookiejar cookie jar对象
+    
+    Exaplem:
+        cookies = dict_from_cookiejar(cookiejar)
+    
+    Return:
+        cookies字典对象
+    '''
+    return requests.utils.dict_from_cookiejar(cookiejar)
+
+def cookiejar_from_dict(cookie_dict, cookiejar=None, overwrite=True):
+    '''
+    字典对象转为cookiejar
+
+    Args:
+        cookiejar cookie jar对象
+    
+    Exaplem:
+        cookies = cookiejar_from_dict(cookie_dict, cookiejar=None, overwrite=True)
+    
+    Return:
+        cookiesJar对象
+    '''
+    return requests.utils.cookiejar_from_dict(
+        cookie_dict, 
+        cookiejar=None, 
+        overwrite=True
     )
