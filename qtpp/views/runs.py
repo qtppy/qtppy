@@ -11,6 +11,7 @@ from qtpp.libs.framework.operate_db import OperationDB
 from qtpp.libs.framework.constant import Const
 from qtpp.libs.framework.https import client
 from qtpp.libs.framework.asserts import BY_HOW
+from qtpp.libs.framework.responseResult import OutPutParam
 from qtpp.libs.framework import libs
 from qtpp import setting
 '''
@@ -71,6 +72,7 @@ def debug():
     url = req_json['url']
     headers = req_json['header']
     method = req_json['method']
+    outParam_list = req_json['outParam']
 
     data_dict, files, headers = client.data_to_parse(data_dict, files_list, how, headers)
 
@@ -80,6 +82,19 @@ def debug():
       headers=headers,
       files=files
     )
+
+    # 出参内容
+    ret_out_param = []
+    for param in outParam_list:
+        ret_out_param.append(
+            OutPutParam.get_output_variable_value(
+                param['source'],
+                param['name'],
+                response,
+                param['exp'],
+                param['match']
+            )
+        )
 
     content_type = response.headers.get("Content-Type", '')
 
@@ -96,7 +111,9 @@ def debug():
         "ok": response.ok,
         "encoding": response.encoding,
         "reason": response.reason,
-        "status_code": response.status_code
+        "status_code": response.status_code,
+        "elapsed": int(response.elapsed.total_seconds() * 1000),
+        "out_param_list": ret_out_param
     }
 
     return jsonify(Const.errcode('0', res=res_dt))
