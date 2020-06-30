@@ -11,6 +11,7 @@ from qtpp.libs.framework.operate_db import OperationDB
 from qtpp.libs.framework.constant import Const
 from qtpp.libs.framework.https import client
 from qtpp.libs.framework.asserts import BY_HOW
+from qtpp.libs.framework.responseResult import OutPutParam
 from qtpp.libs.framework import libs
 from qtpp import setting
 '''
@@ -64,40 +65,16 @@ def debug():
         url: 请求url地址
         headers:请求头信息
     '''
-    data_dict = req_json['body']['body']['data']
-    files_list = req_json['body']['body']['files']
+    body = req_json['body']['body']
+    data_dict = body['data']
+    files_list = body['files']
     how = req_json['body']['how']
     url = req_json['url']
     headers = req_json['header']
     method = req_json['method']
+    outParam_list = req_json['outParam']
 
-    # 遍历请求数据，因为传过来，字典或数组是字符串，所以进行原始类型转换
-    # 以'r{'作为标记，不进转类型还原,并且去掉标记
-    for key, value in data_dict.items():
-        data_dict[key] = value.replace('r!', '') if 'r!' not in repr(value)\
-            else libs.parse_string_eval(value)
-
-    files = []
-
-    # how等于2，form-data格式
-    if how == BY_HOW.FORM_DATA and files_list:
-        # 有需要上传的文件
-        upload_folder = os.path.join(
-            setting.UPLOAD_FOLDER, 
-            str(g.user.uid) + g.user.username
-        )
-
-        files = [
-            (
-                fl['file']['key'], 
-                open(
-                    os.path.join(upload_folder, fl['file']['name']), 
-                    'rb'
-                )
-            ) 
-            for fl in files_list
-        ]
-
+    data_dict, files, headers = client.data_to_parse(data_dict, files_list, how, headers)
 
     response = getattr(client, method)(
       url,
@@ -105,6 +82,19 @@ def debug():
       headers=headers,
       files=files
     )
+
+    # 出参内容
+    ret_out_param = []
+    for param in outParam_list:
+        ret_out_param.append(
+            OutPutParam.get_output_variable_value(
+                param['source'],
+                param['name'],
+                response,
+                param['exp'],
+                param['match']
+            )
+        )
 
     content_type = response.headers.get("Content-Type", '')
 
@@ -121,7 +111,9 @@ def debug():
         "ok": response.ok,
         "encoding": response.encoding,
         "reason": response.reason,
-        "status_code": response.status_code
+        "status_code": response.status_code,
+        "elapsed": int(response.elapsed.total_seconds() * 1000),
+        "out_param_list": ret_out_param
     }
 
     return jsonify(Const.errcode('0', res=res_dt))
