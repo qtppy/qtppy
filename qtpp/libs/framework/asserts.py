@@ -61,4 +61,13 @@ class BY_M:
                 return key
 
 
+class BY_O:
+    '''
+    出参来源定义
+    '''
+    BODY_TEXT = 0
+    BODY_JSON = 1
+    HEADER_K_V = 2
+    COOKIE_K_V = 3
+    STATUS_CODE = 4
 
