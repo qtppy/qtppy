@@ -36,7 +36,8 @@ class OutPutParam:
             body_text = response.text
             # 正则匹配
             pattern = re.compile(exp)
-            result['var_value'] = pattern.findall(body_text)[match]
+            result_match = pattern.findall(body_text)
+            result['var_value'] = result_match if len(result_match) < 1 else result_match[match]
 
         # body json param_type等于1，exp json解析
         if int(param_type) == BY_O.BODY_JSON:
