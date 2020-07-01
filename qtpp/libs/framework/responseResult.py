@@ -45,13 +45,13 @@ class OutPutParam:
 
         # headers param_type等于2，exp header dict解析
         if int(param_type) == BY_O.HEADER_K_V:
-            result['var_value'] = response.headers[exp]
+            result['var_value'] = response.headers.get(exp, 'key Error!')
 
         # cookies param_type等于3，exp cookie dict解析
         if int(param_type) == BY_O.COOKIE_K_V:
             result['var_value'] = libs.dict_from_cookiejar(
                 response.cookies
-            )[exp]
+            ).get(exp, 'Key Error!')
 
         # status_code param_type等于4, 请求状态status_code
         if int(param_type) == BY_O.STATUS_CODE:
