@@ -9,7 +9,11 @@ from qtpp.libs.framework.operate_db import OperationDB
 from qtpp.libs.framework.constant import Const
 from qtpp.libs.framework import libs
 from qtpp import setting
-from qtpp.models.case import CaseInterface
+from qtpp.models.case import (
+    CaseInterface, 
+    Case_Assert, 
+    Case_Result
+)
 import os
 '''
 用例蓝图与验证蓝图所使用的技术一样。
@@ -54,8 +58,7 @@ def create():
 
         para_json = request.json
 
-        odb.add(
-            CaseInterface(
+        case_object = CaseInterface(
                 para_json['name'],
                 g.user.username,
                 para_json['method'],
@@ -64,12 +67,14 @@ def create():
                 para_json['body'],
                 para_json['desc']
             )
-        )
+
+        odb.add(case_object)
 
         res = {
-            "name": para_json['name'],
-            "desc": para_json['desc'],
-            "creator": g.user.username
+            "name": case_object.c_name,
+            "desc": case_object.c_desc,
+            "creator": g.user.username,
+            "c_id": case_object.c_id
         }
         return jsonify(Const.errcode('0', res=res))
 
@@ -165,7 +170,7 @@ def get_case_list():
                     "name": val.c_name,
                     "desc": val.c_desc,
                     "method": val.c_method,
-                    "id": val.c_id,
+                    "cid": val.c_id,
                     "headers": val.c_headers,
                     "body": val.c_body,
                     "creator": val.p_creator,

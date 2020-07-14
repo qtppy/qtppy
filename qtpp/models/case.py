@@ -54,6 +54,7 @@ class Case_Assert(db.Model):
     check_object = db.Column(db.Text, nullable=False, comment='断言对象')
     check_condition = db.Column(db.Integer, nullable=False, comment='断言条件')
     check_content = db.Column(db.Text, nullable=False, comment='断言内容')
+    check_result = db.Column(db.String(20), nullable=False, comment='断言结果')
 
 '''
 Case_Result：单个case结果表
@@ -65,6 +66,7 @@ class Case_Result(db.Model):
     response_header = db.Column(db.Text, nullable=False, comment='响应头信息')
     response_body = db.Column(db.Text, nullable=False, comment='响应body')
     response_cookies = db.Column(db.Text, nullable=False, comment='响应cookie')
+    response_datatime = db.Column(db.String(50), comment='响应时间(毫秒)')
 
 '''
 Case_Output_Parameter: 输出参数表
