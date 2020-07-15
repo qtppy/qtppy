@@ -80,6 +80,7 @@ class OperationDB:
         根据条件删除数据
         '''
         result = self.query_per(table_class, k, v)
-        self.db.session.delete(result)
-        self.db.session.commit()
+        if result:
+            self.db.session.delete(result)
+            self.db.session.commit()
         return result

@@ -10,10 +10,19 @@ from qtpp import db
 from qtpp.libs.framework.operate_db import OperationDB
 from qtpp.libs.framework.constant import Const
 from qtpp.libs.framework.https import client
-from qtpp.libs.framework.asserts import BY_HOW
-from qtpp.libs.framework.responseResult import OutPutParam
+from qtpp.libs.framework.asserts import BY_HOW, BY_T
+from qtpp.libs.framework.responseResult import (
+    OutPutParam, 
+    Check_Result
+)
 from qtpp.libs.framework import libs
 from qtpp import setting
+from qtpp.models.case import (
+    Case_Assert, 
+    Case_Result, 
+    Case_Output_Parameter, 
+    CaseInterface
+)
 '''
 用例蓝图与验证蓝图所使用的技术一样。
 用例页面应当列出所有的case，允许已登录 用户创建用例，并允许创建者修改和删除用例。
@@ -100,6 +109,40 @@ def debug():
 
     # 根据响应头，如果content-type类型是json返回json格式，否则返回text格式
     res_data = response.json() if 'json' in content_type else response.text
+
+    # debug and save保存到数据库
+    if req_json['debugWay']  == 1:
+        for i, val in enumerate(req_json['assertData']):
+            refer = ret_out_param[val['checkObject']]['var_value'] if val['checkType'] == BY_T.REFER else ''
+            chk_result = Check_Result.get_check_result(
+                response=response,
+                checkType=val['checkType'],
+                check_object=val['checkObject'],
+                chk_cd=val['checkCondition'],
+                check_content=val['checkContent'],
+                REFER=refer
+            )
+            case_assert = Case_Assert(
+                c_id=req_json['caseId'],
+                check_type=val['checkType'],
+                check_object=chk_result['check_object'],
+                check_condition=val['checkCondition'],
+                check_content=chk_result['check_content'],
+                check_result=chk_result['check_result']
+            )
+            # assert结果写入，断言表
+            odb.add(case_assert)
+            case_result = Case_Result(
+                c_id=req_json['caseId'],
+                response_header= repr(response.headers),
+                response_body=response.text,
+                response_cookies=repr(libs.dict_from_cookiejar(
+                    response.cookies
+                )),
+                response_datatime=int(response.elapsed.total_seconds() * 1000)
+            )
+            # assert响应结果写入，结果表
+            odb.add(case_result)
 
     res_dt = {
         "headers": dict(response.headers),
