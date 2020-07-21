@@ -1,5 +1,6 @@
 import datetime
 from qtpp import db
+from sqlalchemy.schema import Sequence
 
 '''
 _Case: case基本model __abstract__
@@ -7,6 +8,7 @@ _Case: case基本model __abstract__
 class _Case(db.Model):
     __abstract__ = True
     c_id = db.Column(db.Integer, primary_key=True, autoincrement=True, comment='用例ID')
+    # c_id = db.Column(db.Integer, Sequence('case_cid_seq', start=1001, increment=1), primary_key=True, comment="用例ID")
     c_name = db.Column(db.String(128), nullable=False, comment='用例名称')
     create_time = db.Column(db.DateTime, default=datetime.datetime.now(), comment='创建时间')
     update_time = db.Column(
