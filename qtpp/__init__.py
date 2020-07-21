@@ -43,6 +43,10 @@ def create_app(config_name='pro'):
     from .views import case
     app.register_blueprint(case.bp)
 
+    # 导入全局蓝图
+    from .views import var
+    app.register_blueprint(var.bp)
+
     # 导入run蓝图
     from .views import runs
     app.register_blueprint(runs.bp)
