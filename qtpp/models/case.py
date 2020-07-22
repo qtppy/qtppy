@@ -18,6 +18,7 @@ class _Case(db.Model):
         comment='更新时间'
         )
     p_creator = db.Column(db.String(20), nullable=False, comment='创建者')
+    uid = db.Column(db.Integer, nullable=False, comment='创建者ID')
     c_desc = db.Column(db.String(200), nullable=False, comment="用例描述")
 
 '''
@@ -33,7 +34,7 @@ class CaseInterface(_Case):
     case_result = db.relationship('Case_Result', backref=db.backref('case_interface'), lazy='dynamic', cascade='all, delete-orphan')
     case_out_param = db.relationship('Case_Output_Parameter', backref=db.backref('case_interface'), lazy='dynamic', cascade='all, delete-orphan')
 
-    def __init__(self, name, creator, method, url, header, body, desc):
+    def __init__(self, name, creator, method, url, header, body, desc, uid):
         self.c_name = name
         self.p_creator = creator
         self.c_method = method
@@ -41,6 +42,7 @@ class CaseInterface(_Case):
         self.c_headers = repr(header)
         self.c_body = repr(body)
         self.c_desc = repr(desc)
+        self.uid = uid
 
     def __repr__(self):
         return '<CASE ID:%r>' % self.c_id

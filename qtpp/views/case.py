@@ -3,7 +3,7 @@ from flask import (
 )
 from werkzeug.exceptions import abort
 from qtpp.views.auth import login_required
-
+from sqlalchemy import or_,and_
 from qtpp import db
 from qtpp.libs.framework.operate_db import OperationDB
 from qtpp.libs.framework.constant import Const
@@ -65,7 +65,8 @@ def create():
                 para_json['url'],
                 para_json['header'],
                 para_json['body'],
-                para_json['desc']
+                para_json['desc'],
+                g.user.uid
             )
 
         odb.add(case_object)
@@ -144,18 +145,14 @@ def get_case_list():
         page = request.json.get('page', 1)
         name = request.json.get('name', '')
 
-        if name == '':
-            paginate = odb.query_all_paginate(
-                CaseInterface,
-                page=page
-            )
-        else:
-            paginate = odb.query_per_paginate(
-                CaseInterface,
-                "c_name",
-                name,
-                page=int(page)
-            )
+        task_filter = {CaseInterface.uid == int(g.user.uid)} if name == '' else \
+            {and_(CaseInterface.uid == int(g.user.uid), CaseInterface.c_name == name)}
+
+        paginate = odb.query_per_paginates(
+            CaseInterface,
+            page=int(page),
+            task_filter=task_filter
+        )
 
         res = {
             "page": paginate.page,

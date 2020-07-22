@@ -2,6 +2,7 @@ import time
 import uuid
 import hashlib
 import base64
+import random
 
 class SYS:
     '''
@@ -63,6 +64,26 @@ class SYS:
             "name": 'SHA1加密',
             "type": 2,
             "value": '例:${sys.sha1("text")}'
+        },
+        {
+            "name": 'SHA1 256加密',
+            "type": 2,
+            "value": '例:${sys.sha1_256("text")}'
+        },
+        {
+            "name": 'base64编码',
+            "type": 2,
+            "value": '例:${sys.base64("text")}'
+        },
+        {
+            "name": '字符串随机',
+            "type": 3,
+            "value": '例:${sys.random_string(10)}'
+        },
+        {
+            "name": '指定字符串随机',
+            "type": 3,
+            "value": '例:${sys.random_string(10, "abc")}'
         }
     ]
 
@@ -146,6 +167,54 @@ class SYS:
         '''
         sha1 = hashlib.sha1(text.encode('utf8'))
         return sha1.hexdigest()
+
+    @staticmethod
+    def sha1_256(text):
+        '''
+        sha1加密
+        '''
+        sha1 = hashlib.sha256(text.encode('utf8'))
+        return sha1.hexdigest()
+
+    @staticmethod
+    def base64(text):
+        '''
+        base64编码
+        '''
+        bs4 = str(base64.b64encode(text.encode("utf-8")), "utf-8")
+        return bs4
+
+    @staticmethod
+    def random_string(slen, string=''):
+        '''
+        按指定长度，生成随机字符串
+
+        Args:
+            slen int 10
+        
+        Example:
+            ret = random_string(10)
+            ret = random_string(10, 'abcd')
+
+        Return:
+            YOwdmLPWgj
+        '''
+        rand_val = 65
+        temp = []
+
+        for i in range(slen):
+            if string != '':
+                randString = random.randrange(0, len(string))
+                rand_val = ord(string[randString])
+            else:
+                while True:
+                    rand_val = random.randrange(65, 122)
+                    if rand_val > 90 and rand_val < 97:
+                        continue
+                    break
+            temp.append(chr(rand_val))
+        return ''.join(temp)
+
 
 if __name__ == "__main__":
     string = SYS.substring("Thisisstring", 8, 2)

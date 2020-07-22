@@ -4,7 +4,7 @@ class Variable(db.Model):
     """
     变量表
     """
-    __tablename__ = 'variableGlobal'
+    __tablename__ = 'variableglobal'
     vid = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(50), nullable=False)
     value = db.Column(db.String(255), nullable=False)
