@@ -51,6 +51,21 @@ class OperationDB:
         data = table_class.query.filter(k == v).all()
         return data
 
+    def query_per_paginates(self, table_class, page=1, per_page=10, **kwargs):
+        '''
+        根据条件查询并分页
+        page: 当前页
+        pre_page: 分页显示条数
+        task_filter
+        '''
+        # k = getattr(table_class, k)
+        paginate = table_class.query.filter(*kwargs['task_filter']).paginate(
+            page=page, 
+            per_page=per_page, 
+            error_out=False
+        )
+        return paginate
+
 
     def query_per_paginate(self, table_class, k, v, page=1, per_page=10):
         '''
@@ -59,7 +74,11 @@ class OperationDB:
         pre_page: 分页显示条数
         '''
         k = getattr(table_class, k)
-        paginate = table_class.query.filter(k == v).paginate(page=page, per_page=per_page, error_out=False)
+        paginate = table_class.query.filter(k == v).paginate(
+            page=page, 
+            per_page=per_page, 
+            error_out=False
+        )
         return paginate
 
 
