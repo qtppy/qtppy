@@ -82,6 +82,35 @@ def create():
     return abort(404)
 
 
+@bp.route('/edit', methods=('GET', 'POST'))
+@login_required
+def edit_case():
+    '''
+    编辑测试用例
+    '''
+    if request.method == 'POST':
+        if not g.user.uid:
+            return jsonify(Const.errcode('1001'))
+
+        para_json = request.json
+    
+        result = odb.update(
+            CaseInterface,
+            'c_id',
+            para_json['caseId'],
+            c_name=para_json['name'],
+            c_method=para_json['method'],
+            c_url=para_json['url'],
+            c_headers=para_json['header'],
+            c_body=para_json['body'],
+            c_desc=para_json['desc']
+        )
+
+        return jsonify(Const.errcode('0'))
+    
+    return abort(404)
+
+
 @bp.route('/getcaselist', methods=['GET', 'POST'])
 @login_required
 def get_case_list():
@@ -169,7 +198,7 @@ def get_case_list():
                     "method": val.c_method,
                     "cid": val.c_id,
                     "headers": val.c_headers,
-                    "body": val.c_body,
+                    "body": eval(val.c_body),
                     "creator": val.p_creator,
                     "createtime": val.create_time
                 } for val in paginate.items
