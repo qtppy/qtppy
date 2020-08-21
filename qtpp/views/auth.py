@@ -113,7 +113,7 @@ def load_logged_in_user():
 注销的时候需要把用户 id 从 session 中移除。 
 然后 load_logged_in_user 就不会在后继请求中载入用户了。
 '''
-@bp.route('/logout')
+@bp.route('/logout', methods=('GET', 'POST'))
 def logout():
     session.clear()
     return jsonify(Const.errcode('0'))

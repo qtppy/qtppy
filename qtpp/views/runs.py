@@ -15,6 +15,7 @@ from qtpp.libs.framework.responseResult import (
     OutPutParam, 
     Check_Result
 )
+from qtpp.libs.framework.exts import EXTS
 from qtpp.libs.framework import libs
 from qtpp import setting
 from qtpp.models.case import (
@@ -64,7 +65,7 @@ def debug():
     if not g.user.uid:
         return jsonify(Const.errcode('1001'))
 
-    req_json = request.json
+    req = request.json
 
     '''
     Var:
@@ -74,14 +75,14 @@ def debug():
         url: 请求url地址
         headers:请求头信息
     '''
-    body = req_json['body']['body']
+    body = req['body']['body']
     data_dict = body['data']
     files_list = body['files']
-    how = req_json['body']['how']
-    url = req_json['url']
-    headers = req_json['header']
-    method = req_json['method']
-    outParam_list = req_json['outParam']
+    how = req['body']['how']
+    url = req['url']
+    headers = req['header']
+    method = req['method']
+    outParam_list = req['outParam']
 
     data_dict, files, headers = client.data_to_parse(data_dict, files_list, how, headers)
 
@@ -93,56 +94,15 @@ def debug():
     )
 
     # 出参内容
-    ret_out_param = []
-    for param in outParam_list:
-        ret_out_param.append(
-            OutPutParam.get_output_variable_value(
-                param['source'],
-                param['name'],
-                response,
-                param['exp'],
-                param['match']
-            )
-        )
+    ret_out_param = EXTS.get_out_parameters(outParam_list)
 
     content_type = response.headers.get("Content-Type", '')
 
     # 根据响应头，如果content-type类型是json返回json格式，否则返回text格式
     res_data = response.json() if 'json' in content_type else response.text
 
-    # debug and save保存到数据库
-    if req_json['debugWay']  == 1:
-        for i, val in enumerate(req_json['assertData']):
-            refer = ret_out_param[val['checkObject']]['var_value'] if val['checkType'] == BY_T.REFER else ''
-            chk_result = Check_Result.get_check_result(
-                response=response,
-                checkType=val['checkType'],
-                check_object=val['checkObject'],
-                chk_cd=val['checkCondition'],
-                check_content=val['checkContent'],
-                REFER=refer
-            )
-            case_assert = Case_Assert(
-                c_id=req_json['caseId'],
-                check_type=val['checkType'],
-                check_object=chk_result['check_object'],
-                check_condition=val['checkCondition'],
-                check_content=chk_result['check_content'],
-                check_result=chk_result['check_result']
-            )
-            # assert结果写入，断言表
-            odb.add(case_assert)
-            case_result = Case_Result(
-                c_id=req_json['caseId'],
-                response_header= repr(response.headers),
-                response_body=response.text,
-                response_cookies=repr(libs.dict_from_cookiejar(
-                    response.cookies
-                )),
-                response_datatime=int(response.elapsed.total_seconds() * 1000)
-            )
-            # assert响应结果写入，结果表
-            odb.add(case_result)
+    # 调试或保存
+    EXTS.debug_or_save(req, ret_out_param, response, odb)
 
     res_dt = {
         "headers": dict(response.headers),
