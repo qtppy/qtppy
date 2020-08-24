@@ -16,10 +16,8 @@ class EXTS:
       # 出参内容
       ret_param = []
 
-      # 出参不为空
-      if params_list['data']:
-
-        for param in params_list:
+      for param in params_list['data']:
+        if param['name'] != '':
           ret_param.append(
             OutPutParam.get_output_variable_value(
               param['source'],
@@ -27,8 +25,7 @@ class EXTS:
               response,
               param['exp'],
               param['match']
-            )
-          )
+          ))
       return ret_param
 
   @staticmethod
@@ -45,14 +42,15 @@ class EXTS:
               check_content=val['checkContent'],
               REFER=refer
           )
-          case_assert = Case_Assert(
-              c_id=req['caseId'],
-              check_type=val['checkType'],
-              check_object=chk_result['check_object'],
-              check_condition=val['checkCondition'],
-              check_content=chk_result['check_content'],
-              check_result=chk_result['check_result']
-          )
+          if isinstance(req['caseId'], int):
+            case_assert = Case_Assert(
+                c_id=req['caseId'],
+                check_type=val['checkType'],
+                check_object=chk_result['check_object'],
+                check_condition=val['checkCondition'],
+                check_content=chk_result['check_content'],
+                check_result=chk_result['check_result']
+            )
           # assert结果写入，断言表
           odb.add(case_assert)
           case_result = Case_Result(
