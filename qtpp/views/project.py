@@ -7,7 +7,14 @@ from qtpp.views.auth import login_required
 from qtpp import db
 from qtpp.libs.framework.operate_db import OperationDB
 from qtpp.libs.framework.constant import Const
-from qtpp.models.project import Project, TestSuite
+from qtpp.models.project import (
+    Project, 
+    TestSuite, 
+    SuiteCase, 
+    Suite_Case_Assert,
+    Suite_Case_Output_Parameter,
+    Suite_Case_Result
+)
 
 
 bp = Blueprint('project', __name__, url_prefix='/project')
@@ -613,5 +620,79 @@ def suite_update():
         }
 
         return jsonify(Const.errcode('0', res=res))
+
+    return abort(404)
+
+
+@bp.route('/suite/getSuiteCaseById', methods=['GET', 'POST'])
+@login_required
+def getSuiteCaseInfo():
+    '''
+    根据场景ID， caseID，获取；场景用例内容
+    '''
+    if request.method == 'POST':
+
+        if not g.user.uid:
+            return jsonify(Const.errcode('1001'))
+        
+        req = request.json
+
+        paginate = odb.query_per_paginate(
+            SuiteCase,
+            "sid",
+            req['sid']
+        )
+        res = {
+            "prev_num": paginate.prev_num,
+            "per_page": paginate.per_page,
+            "pages": paginate.pages,
+            "total": paginate.total,
+            "page": paginate.page,
+            "next_page": paginate.next_num,
+            "case":[{
+                "scid": sd.scid,
+                "scName": sd.scName,
+                "scUrl": sd.scUrl,
+                "scMethod": sd.scMethod,
+                "create_time": sd.create_time,
+                "scDesc": sd.scDesc,
+                "sid": sd.sid
+            } for sd in paginate.items],
+            "count": len(paginate.items)
+        }
+        return jsonify(
+            Const.errcode('0', res=res)
+        )
+
+    return abort(404)
+
+
+@bp.route('/suite/addCase', methods=['GET', 'POST'])
+@login_required
+def add_suite_case():
+    '''增加场景case'''
+    if request.method == 'POST':
+        if not g.user.uid:
+            return jsonify(Const.errcode('1001'))
+        
+        req = request.json
+
+        rows = [ SuiteCase(
+            val['name'],
+            i,
+            '{}'.format(g.user.username),
+            g.user.uid,
+            val['desc'],
+            val['method'],
+            val['url'],
+            repr(val['headers']),
+            repr(val['body']),
+            req['sid']
+        ) for i, val in enumerate(req['data'])]
+
+        # 逐条入库，入表
+        for i in rows: odb.add(i)
+
+        return jsonify(Const.errcode('0'))
 
     return abort(404)
