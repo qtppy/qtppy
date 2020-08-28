@@ -62,6 +62,7 @@ class TestSuite(db.Model):
         )
     p_creator = db.Column(db.String(50), nullable=False, comment='创建者')
     p_id = db.Column(db.Integer, db.ForeignKey('project.p_id', ondelete='CASCADE'), comment='项目ID')
+    suite_case = db.relationship('SuiteCase', backref=db.backref('p_test_suite'), lazy='dynamic', cascade='all, delete-orphan')
 
     def __init__(self, s_name, p_creator, p_id, s_desc=''):
         self.s_name = s_name
@@ -72,3 +73,78 @@ class TestSuite(db.Model):
     def __repr__(self):
         return '<Suite ID:%r>' % self.sid
 
+
+class SuiteCase(db.Model):
+    __tablename__ = 'suite_case_interface'
+    scid = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True, comment='场景用例ID')
+    scName = db.Column(db.String(128), nullable=False, comment='用例名称')
+    scNo = db.Column(db.Integer, nullable=True, comment='用例在场景中的序顺号')
+    create_time = db.Column(db.DateTime, default=datetime.datetime.now(), comment='创建时间')
+    update_time = db.Column(
+        db.DateTime, 
+        default=datetime.datetime.now, 
+        onupdate=datetime.datetime.now, 
+        comment='更新时间'
+        )
+    p_creator = db.Column(db.String(20), nullable=False, comment='创建者')
+    uid = db.Column(db.Integer, nullable=False, comment='创建者ID')
+    scDesc = db.Column(db.String(200), nullable=False, comment="用例描述")
+    scMethod = db.Column(db.String(10), nullable=False, comment='请求方式')
+    scUrl = db.Column(db.Text, nullable=False, comment='请求地址')
+    scHeaders = db.Column(db.Text, nullable=False, comment='请求头信息')
+    scBody = db.Column(db.Text, nullable=False, comment='请求主体')
+    case_assert = db.relationship('Suite_Case_Assert', backref=db.backref('suite_case_interface'), lazy='dynamic', cascade='all, delete-orphan')
+    case_result = db.relationship('Suite_Case_Result', backref=db.backref('suite_case_interface'), lazy='dynamic', cascade='all, delete-orphan')
+    case_out_param = db.relationship('Suite_Case_Output_Parameter', backref=db.backref('suite_case_interface'), lazy='dynamic', cascade='all, delete-orphan')
+    sid = db.Column(db.Integer, db.ForeignKey('p_test_suite.sid', ondelete='CASCADE'), comment='场景ID')
+
+    def __init__(self, scName, scNo, p_creator, uid, scDesc, scMethod, scUrl, scHeaders, scBody, sid):
+        self.scName = scName
+        self.scNo = scNo
+        self.p_creator = p_creator
+        self.uid = uid
+        self.scDesc = scDesc
+        self.scMethod = scMethod
+        self.scUrl = scUrl
+        self.scHeaders = scHeaders
+        self.scBody = scBody
+        self.sid = sid
+
+
+
+'''
+Case_Assert: 单个case断言表
+'''
+class Suite_Case_Assert(db.Model):
+    __tablename__ = 'suite_case_assert'
+    a_id = db.Column(db.Integer, primary_key=True, autoincrement=True, comment='断言ID')
+    c_id = db.Column(db.Integer, db.ForeignKey('suite_case_interface.scid', ondelete='CASCADE'), comment='用例ID')
+    check_type = db.Column(db.Integer, nullable=False, comment='断言类型')
+    check_object = db.Column(db.Text, nullable=False, comment='断言对象')
+    check_condition = db.Column(db.Integer, nullable=False, comment='断言条件')
+    check_content = db.Column(db.Text, nullable=False, comment='断言内容')
+    check_result = db.Column(db.String(20), nullable=False, comment='断言结果')
+
+'''
+Case_Result：单个case结果表
+'''
+class Suite_Case_Result(db.Model):
+    __tablename__ = 'suite_case_result'
+    r_id = db.Column(db.Integer, primary_key=True, autoincrement=True, comment='测试结果ID')
+    c_id = db.Column(db.Integer, db.ForeignKey('suite_case_interface.scid', ondelete='CASCADE'), comment='用例ID')
+    response_header = db.Column(db.Text, nullable=False, comment='响应头信息')
+    response_body = db.Column(db.Text, nullable=False, comment='响应body')
+    response_cookies = db.Column(db.Text, nullable=False, comment='响应cookie')
+    response_datatime = db.Column(db.String(50), comment='响应时间(毫秒)')
+
+'''
+Case_Output_Parameter: 输出参数表
+'''
+class Suite_Case_Output_Parameter(db.Model):
+    __tablename__ = 'suite_case_output_parameter'
+    o_id = db.Column(db.Integer, primary_key=True, autoincrement=True, comment='输出参数ID')
+    c_id = db.Column(db.Integer, db.ForeignKey('suite_case_interface.scid', ondelete='CASCADE'), comment='用例ID')
+    o_name = db.Column(db.String(100), nullable=False, comment='出参名称')
+    o_soucre = db.Column(db.Integer, nullable=False, comment='出参来源')
+    o_analytical_exp = db.Column(db.Text, nullable=False, comment='解析表达式')
+    o_match = db.Column(db.Integer, nullable=False, comment='第几个匹配')
