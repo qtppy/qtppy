@@ -94,7 +94,7 @@ def debug():
     )
 
     # 出参内容
-    ret_out_param = EXTS.get_out_parameters(outParam_list)
+    ret_out_param = EXTS.get_out_parameters(outParam_list, response)
 
     content_type = response.headers.get("Content-Type", '')
 

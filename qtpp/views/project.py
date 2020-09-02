@@ -677,9 +677,10 @@ def add_suite_case():
         
         req = request.json
 
-        rows = [ SuiteCase(
+        # 逐条入库，入表
+        _ = [ odb.add(SuiteCase(
             val['name'],
-            i,
+            len(odb.query_per_all(SuiteCase, 'sid', req['sid'])) + 1, # 新增用例，指定给用例的序顺号
             '{}'.format(g.user.username),
             g.user.uid,
             val['desc'],
@@ -688,10 +689,7 @@ def add_suite_case():
             repr(val['headers']),
             repr(val['body']),
             req['sid']
-        ) for i, val in enumerate(req['data'])]
-
-        # 逐条入库，入表
-        for i in rows: odb.add(i)
+        )) for val in req['data']]
 
         return jsonify(Const.errcode('0'))
 
