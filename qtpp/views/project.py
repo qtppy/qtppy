@@ -642,6 +642,12 @@ def getSuiteCaseInfo():
             "sid",
             req['sid']
         )
+
+        # 场景用例排序返回
+        sc = [adict.scNo for adict in paginate.items]
+        sc.sort(reverse=False)
+        paginate.items = [adict for i in sc for adict in paginate.items if adict.scNo== i]
+
         res = {
             "prev_num": paginate.prev_num,
             "per_page": paginate.per_page,
@@ -651,12 +657,15 @@ def getSuiteCaseInfo():
             "next_page": paginate.next_num,
             "case":[{
                 "scid": sd.scid,
+                "scno": sd.scNo,
                 "scName": sd.scName,
                 "scUrl": sd.scUrl,
                 "scMethod": sd.scMethod,
                 "create_time": sd.create_time,
                 "scDesc": sd.scDesc,
-                "sid": sd.sid
+                "sid": sd.sid,
+                "scBody": eval(sd.scBody),
+                "scHeaders": eval(sd.scHeaders),
             } for sd in paginate.items],
             "count": len(paginate.items)
         }
@@ -690,6 +699,25 @@ def add_suite_case():
             repr(val['body']),
             req['sid']
         )) for val in req['data']]
+
+        return jsonify(Const.errcode('0'))
+
+    return abort(404)
+
+
+@bp.route('/suite/deleteSenceCase', methods=['GET', 'POST'])
+@login_required
+def delete_suite_case():
+    '''删除场景case'''
+    if request.method == 'POST':
+        if not g.user.uid:
+            return jsonify(Const.errcode('1001'))
+
+        # 获取要删除的{'scid': [....]}
+        scid_list = request.json['scid']
+
+        # 批量删除scid
+        for scid in scid_list: odb.delete(SuiteCase, 'scid', scid)
 
         return jsonify(Const.errcode('0'))
 
