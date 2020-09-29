@@ -1,7 +1,9 @@
 '''
     创建数据库2个命令：
-    create database qtppdb;
+    CREATE DATABASE qtppdb DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
     GRANT SELECT,INSERT,UPDATE,DELETE,CREATE,DROP,ALTER ON 数据库名.* TO 数据库名@localhost IDENTIFIED BY '密码';
+
+    flush privileges;
 
     API:https://flask-migrate.readthedocs.io/en/latest/
     # 对数据库的操作
