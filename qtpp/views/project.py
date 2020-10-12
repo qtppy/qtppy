@@ -13,7 +13,7 @@ from qtpp.models.project import (
     SuiteCase, 
     Suite_Case_Assert,
     Suite_Case_Output_Parameter,
-    Suite_Case_Result
+    Suite_Case_Result,
 )
 
 
@@ -701,6 +701,70 @@ def add_suite_case():
         )) for val in req['data']]
 
         return jsonify(Const.errcode('0'))
+
+    return abort(404)
+
+
+@bp.route('/suite/updateSenceCase', methods=['GET', 'POST'])
+@login_required
+def update_suite_case():
+    '''更新场景case'''
+    if request.method == 'POST':
+        if not g.user.uid:
+            return jsonify(Const.errcode('1001'))
+        
+        up = request.json
+
+        # 1上移；2下移
+        if up['move'] == 1:
+            try:
+                # 根据scNo查询上一条用例scid号
+                squery =  odb.query_per(SuiteCase, 'scNo', up['data']['scNo'] - 1)
+
+                update1 = odb.update(
+                    SuiteCase,
+                    "scid",
+                    squery.scid,
+                    scNo=up['data']['scNo']
+                )
+                update = odb.update(
+                    SuiteCase,
+                    "scid",
+                    up['data']['scid'],
+                    scNo=squery.scNo - 1
+                )
+            except BaseException:
+                odb.rollback()
+        # 下移
+        if up['move'] == 2:
+            try:
+                # 根据scNo查询下一条用例scid号
+                squery =  odb.query_per(SuiteCase, 'scNo', up['data']['scNo'] + 1)
+
+                update1 = odb.update(
+                    SuiteCase,
+                    "scid",
+                    squery.scid,
+                    scNo=squery.scNo - 1
+                )
+                update = odb.update(
+                    SuiteCase,
+                    "scid",
+                    up['data']['scid'],
+                    scNo=up['data']['scNo'] + 1
+                )
+            except BaseException:
+                odb.rollback()
+
+        res = {
+            "scid": update.scid,
+            "scName": update.scName,
+            "scNo": update.scNo,
+            "scDesc": update.scDesc,
+            "scUrl": update.scUrl
+        }
+
+        return jsonify(Const.errcode('0', res=res))
 
     return abort(404)
 

@@ -23,6 +23,7 @@ class Const:
 
     @classmethod
     def errcode(cls, code, **kwargs):
+        cls.SUCCESS_DICT = {}
         cls.SUCCESS_DICT['errcode'] = int(code)
         cls.SUCCESS_DICT['errmsg'] =  cls.ERROR_DICT[str(code)]
 

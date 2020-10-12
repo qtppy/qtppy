@@ -42,6 +42,13 @@ class OperationDB:
         data = table_class.query.filter(k == v).first()
         return data
 
+    def query_per_and_or_(self, table_class, obj):
+        '''
+        根据条件，查询模型下第一条数据
+        '''
+        k = getattr(table_class, k)
+        data = table_class.query.filter(obj)
+        return data
 
     def query_per_all(self, table_class, k, v):
         '''
@@ -92,6 +99,10 @@ class OperationDB:
             setattr(result, k, v)
         self.db.session.commit()
         return result
+
+    def rollback(self):
+        '''回退'''
+        self.db.rollback()
 
 
     def delete(self, table_class, k, v):
